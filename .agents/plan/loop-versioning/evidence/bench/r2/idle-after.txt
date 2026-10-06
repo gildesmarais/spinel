@@ -1,0 +1,36 @@
+## 2026-10-06T10:33:25Z
+### uptime
+12:33  up 23:32, 4 users, load averages: 2.76 4.69 6.54
+### top -l 2 -o cpu -n 10 -s 1 (second sample)
+Processes: 850 total, 2 running, 848 sleeping, 4184 threads 
+2026/10/06 12:33:25
+Load Avg: 2.76, 4.69, 6.54 
+CPU usage: 8.9% user, 7.98% sys, 83.91% idle 
+SharedLibs: 459M resident, 89M data, 72M linkedit.
+MemRegions: 0 total, 0B resident, 215M private, 1860M shared.
+PhysMem: 15G used (2660M wired, 3707M compressor), 85M unused.
+VM: 422T vsize, 57G framework vsize, 951791(0) swapins, 1311699(0) swapouts.
+Networks: packets: 6874327/4813M in, 3320491/1295M out.
+Disks: 29951906/700G read, 12411107/226G written.
+
+PID    COMMAND          %CPU STATE   
+716    spotlightknowled 14.8 sleeping
+0      kernel_task      13.2 running 
+404    WindowServer     11.0 sleeping
+1152   Cursor Helper (R 7.8  sleeping
+51570  top              7.2  running 
+1698   OrbStack Helper  5.9  sleeping
+1693   Cursor Helper (P 5.3  sleeping
+43930  btm              4.5  sleeping
+1136   Cursor Helper    4.4  sleeping
+384    dasd             3.4  sleeping
+### pmset -g batt
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=22741091)	98%; charging; 0:31 remaining present: true
+### pmset -g therm
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded
+### pmset -g (lowpowermode)
+ lowpowermode         0
+### verdict: IDLE; overridden under user authorization (owner, 2026-10-06 12:28 local: on AC, idle, benchmarking authorized): CPU idle 83.9% < 90%; 1-minute load 2.76 > 2.0

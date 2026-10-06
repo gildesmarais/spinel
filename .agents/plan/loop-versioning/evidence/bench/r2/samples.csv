@@ -1,0 +1,521 @@
+round,variant,wall_ms,user_ms,sys_ms
+1,startup (puts 1),3.324,0.855,1.043
+1,mm150 current,9.286,7.088,0.977
+1,mm150 versioned,3.237,1.328,0.877
+1,mm500 current (spinel),234.948,230.944,2.240
+1,mm500 current (direct cc),233.256,227.606,3.551
+1,mm500 versioned -fno-vectorize,44.288,41.410,1.372
+1,mm500 versioned,22.389,19.720,1.382
+1,dot current (spinel),152.757,149.005,1.996
+1,dot versioned -fno-vectorize,93.176,90.040,1.587
+1,dot versioned,92.890,89.869,1.487
+1,mm150 real,3.522,1.330,0.947
+1,mm500 real,21.794,19.312,1.254
+1,dot real,93.073,90.150,1.520
+2,startup (puts 1),3.619,0.904,1.189
+2,mm150 current,9.092,6.863,0.969
+2,mm150 versioned,3.454,1.315,0.914
+2,mm500 current (spinel),228.198,223.614,2.908
+2,mm500 current (direct cc),231.138,226.062,3.109
+2,mm500 versioned -fno-vectorize,44.964,41.527,1.683
+2,mm500 versioned,22.754,19.726,1.306
+2,dot current (spinel),155.076,150.781,2.489
+2,dot versioned -fno-vectorize,93.105,89.509,1.850
+2,dot versioned,93.228,89.721,1.830
+2,mm150 real,4.025,1.431,1.111
+2,mm500 real,21.857,19.583,1.190
+2,dot real,92.242,89.448,1.495
+3,startup (puts 1),3.137,0.801,0.992
+3,mm150 current,8.894,6.771,0.920
+3,mm150 versioned,3.300,1.281,0.903
+3,mm500 current (spinel),229.730,225.135,2.848
+3,mm500 current (direct cc),228.848,224.618,2.638
+3,mm500 versioned -fno-vectorize,45.239,41.859,1.674
+3,mm500 versioned,22.568,19.635,1.398
+3,dot current (spinel),152.084,148.246,2.208
+3,dot versioned -fno-vectorize,93.871,90.816,1.410
+3,dot versioned,100.355,92.488,1.999
+3,mm150 real,3.861,1.429,1.019
+3,mm500 real,23.309,20.367,1.367
+3,dot real,92.411,89.033,1.629
+4,startup (puts 1),2.729,0.735,0.899
+4,mm150 current,8.918,6.942,0.901
+4,mm150 versioned,3.330,1.349,0.921
+4,mm500 current (spinel),228.230,224.077,2.863
+4,mm500 current (direct cc),228.111,223.594,2.721
+4,mm500 versioned -fno-vectorize,45.512,42.349,1.629
+4,mm500 versioned,23.748,20.749,1.415
+4,dot current (spinel),162.531,157.295,2.304
+4,dot versioned -fno-vectorize,95.576,91.821,1.942
+4,dot versioned,92.539,89.433,1.559
+4,mm150 real,4.179,1.469,1.135
+4,mm500 real,22.452,19.992,1.276
+4,dot real,93.825,90.548,1.644
+5,startup (puts 1),2.956,0.731,0.910
+5,mm150 current,8.866,6.698,0.909
+5,mm150 versioned,3.551,1.325,0.890
+5,mm500 current (spinel),229.803,225.416,2.767
+5,mm500 current (direct cc),232.806,226.269,4.713
+5,mm500 versioned -fno-vectorize,44.662,41.446,1.634
+5,mm500 versioned,22.356,19.742,1.281
+5,dot current (spinel),157.194,153.773,1.554
+5,dot versioned -fno-vectorize,96.924,93.429,1.583
+5,dot versioned,95.991,92.470,1.855
+5,mm150 real,4.101,1.414,1.234
+5,mm500 real,22.629,19.887,1.332
+5,dot real,93.450,90.290,1.773
+6,startup (puts 1),3.394,0.838,1.078
+6,mm150 current,8.917,6.760,1.013
+6,mm150 versioned,3.295,1.323,0.879
+6,mm500 current (spinel),231.562,227.160,2.772
+6,mm500 current (direct cc),229.985,224.949,3.154
+6,mm500 versioned -fno-vectorize,45.509,42.005,1.862
+6,mm500 versioned,23.546,20.374,1.551
+6,dot current (spinel),152.764,149.222,1.764
+6,dot versioned -fno-vectorize,93.249,89.777,1.798
+6,dot versioned,92.984,89.886,1.414
+6,mm150 real,4.055,1.450,1.188
+6,mm500 real,22.113,19.589,1.353
+6,dot real,93.855,90.656,1.642
+7,startup (puts 1),3.179,0.796,1.019
+7,mm150 current,9.505,7.018,1.101
+7,mm150 versioned,3.533,1.359,0.944
+7,mm500 current (spinel),230.370,225.819,2.756
+7,mm500 current (direct cc),230.553,225.808,2.958
+7,mm500 versioned -fno-vectorize,44.665,41.369,1.697
+7,mm500 versioned,23.196,20.253,1.445
+7,dot current (spinel),152.989,148.991,2.268
+7,dot versioned -fno-vectorize,95.105,91.317,1.906
+7,dot versioned,93.158,89.921,1.534
+7,mm150 real,4.102,1.508,1.212
+7,mm500 real,22.981,19.965,1.537
+7,dot real,92.513,89.466,1.538
+8,startup (puts 1),3.335,0.848,1.113
+8,mm150 current,9.148,6.825,1.108
+8,mm150 versioned,3.332,1.319,0.978
+8,mm500 current (spinel),231.673,226.888,2.898
+8,mm500 current (direct cc),230.065,225.779,2.593
+8,mm500 versioned -fno-vectorize,44.782,41.792,1.493
+8,mm500 versioned,23.013,19.979,1.505
+8,dot current (spinel),153.287,149.708,2.175
+8,dot versioned -fno-vectorize,93.470,90.074,1.759
+8,dot versioned,100.393,91.897,1.768
+8,mm150 real,4.206,1.422,1.480
+8,mm500 real,22.541,19.817,1.339
+8,dot real,92.580,89.495,1.560
+9,startup (puts 1),3.213,0.830,1.031
+9,mm150 current,9.151,6.918,0.968
+9,mm150 versioned,3.355,1.306,0.918
+9,mm500 current (spinel),230.098,226.213,2.200
+9,mm500 current (direct cc),231.194,226.115,2.983
+9,mm500 versioned -fno-vectorize,44.547,41.353,1.660
+9,mm500 versioned,22.243,19.705,1.254
+9,dot current (spinel),155.961,152.090,2.063
+9,dot versioned -fno-vectorize,93.435,90.300,1.486
+9,dot versioned,93.376,89.908,1.717
+9,mm150 real,3.768,1.378,1.359
+9,mm500 real,22.325,19.745,1.289
+9,dot real,93.221,90.050,1.612
+10,startup (puts 1),3.497,0.906,1.133
+10,mm150 current,9.142,6.772,1.051
+10,mm150 versioned,3.378,1.311,0.915
+10,mm500 current (spinel),430.037,237.670,3.167
+10,mm500 current (direct cc),237.411,231.333,3.105
+10,mm500 versioned -fno-vectorize,45.514,41.718,2.203
+10,mm500 versioned,23.304,20.089,1.571
+10,dot current (spinel),155.915,151.665,2.337
+10,dot versioned -fno-vectorize,94.525,90.516,1.772
+10,dot versioned,93.492,89.689,2.049
+10,mm150 real,4.943,1.474,1.299
+10,mm500 real,22.762,19.614,1.280
+10,dot real,96.190,93.046,1.377
+11,startup (puts 1),3.295,0.760,0.996
+11,mm150 current,9.330,7.148,0.942
+11,mm150 versioned,3.729,1.382,0.991
+11,mm500 current (spinel),235.690,230.771,2.957
+11,mm500 current (direct cc),234.212,228.985,3.132
+11,mm500 versioned -fno-vectorize,45.424,41.896,1.797
+11,mm500 versioned,22.825,19.808,1.491
+11,dot current (spinel),153.502,150.111,1.878
+11,dot versioned -fno-vectorize,94.854,91.583,1.549
+11,dot versioned,93.546,90.072,1.686
+11,mm150 real,3.871,1.453,1.118
+11,mm500 real,22.042,19.480,1.275
+11,dot real,91.808,89.067,1.434
+12,startup (puts 1),3.543,0.828,1.155
+12,mm150 current,9.034,6.893,0.921
+12,mm150 versioned,3.592,1.377,1.237
+12,mm500 current (spinel),231.073,226.890,2.587
+12,mm500 current (direct cc),233.410,227.900,3.404
+12,mm500 versioned -fno-vectorize,45.115,41.993,1.604
+12,mm500 versioned,24.127,20.730,1.708
+12,dot current (spinel),154.236,150.530,1.846
+12,dot versioned -fno-vectorize,94.350,90.728,1.853
+12,dot versioned,93.912,90.349,1.734
+12,mm150 real,4.471,1.516,1.324
+12,mm500 real,22.630,19.720,1.436
+12,dot real,92.668,90.030,1.354
+13,startup (puts 1),3.164,0.803,1.012
+13,mm150 current,9.471,7.003,1.270
+13,mm150 versioned,3.749,1.365,0.989
+13,mm500 current (spinel),230.158,226.130,2.466
+13,mm500 current (direct cc),231.902,227.705,2.186
+13,mm500 versioned -fno-vectorize,45.268,42.108,1.535
+13,mm500 versioned,23.201,20.441,1.311
+13,dot current (spinel),162.373,151.850,2.404
+13,dot versioned -fno-vectorize,97.727,91.981,1.864
+13,dot versioned,93.075,89.996,1.510
+13,mm150 real,4.118,1.454,1.092
+13,mm500 real,23.063,19.928,1.547
+13,dot real,91.958,88.742,1.679
+14,startup (puts 1),3.416,0.911,1.140
+14,mm150 current,9.228,6.969,1.048
+14,mm150 versioned,3.583,1.357,0.976
+14,mm500 current (spinel),232.038,227.655,2.660
+14,mm500 current (direct cc),238.672,232.812,3.135
+14,mm500 versioned -fno-vectorize,46.556,43.168,1.714
+14,mm500 versioned,25.496,21.519,1.857
+14,dot current (spinel),156.078,152.281,2.113
+14,dot versioned -fno-vectorize,95.523,91.661,1.784
+14,dot versioned,94.130,90.668,1.791
+14,mm150 real,3.867,1.451,1.092
+14,mm500 real,22.185,19.643,1.242
+14,dot real,91.911,89.181,1.415
+15,startup (puts 1),3.313,0.804,1.075
+15,mm150 current,9.043,6.850,0.968
+15,mm150 versioned,3.657,1.406,0.903
+15,mm500 current (spinel),231.351,227.358,2.408
+15,mm500 current (direct cc),231.749,227.078,2.597
+15,mm500 versioned -fno-vectorize,44.509,41.452,1.466
+15,mm500 versioned,22.672,20.184,1.202
+15,dot current (spinel),159.701,155.671,1.864
+15,dot versioned -fno-vectorize,97.588,93.406,2.036
+15,dot versioned,92.208,88.876,1.747
+15,mm150 real,3.379,1.348,0.916
+15,mm500 real,22.411,19.854,1.495
+15,dot real,93.008,90.076,1.500
+16,startup (puts 1),3.156,0.815,1.018
+16,mm150 current,9.305,7.084,1.025
+16,mm150 versioned,3.392,1.317,0.964
+16,mm500 current (spinel),231.279,227.005,2.563
+16,mm500 current (direct cc),231.929,227.547,2.519
+16,mm500 versioned -fno-vectorize,45.059,41.830,1.755
+16,mm500 versioned,22.800,20.089,1.316
+16,dot current (spinel),153.915,150.514,1.960
+16,dot versioned -fno-vectorize,95.601,91.746,2.072
+16,dot versioned,91.871,89.013,1.225
+16,mm150 real,3.815,1.449,1.001
+16,mm500 real,21.785,19.501,1.157
+16,dot real,92.179,89.303,1.475
+17,startup (puts 1),3.332,0.847,1.052
+17,mm150 current,9.631,7.145,1.223
+17,mm150 versioned,3.769,1.444,1.125
+17,mm500 current (spinel),231.224,227.020,2.856
+17,mm500 current (direct cc),231.789,227.127,2.773
+17,mm500 versioned -fno-vectorize,45.027,41.711,1.779
+17,mm500 versioned,23.161,20.163,1.526
+17,dot current (spinel),153.883,150.698,1.675
+17,dot versioned -fno-vectorize,95.119,91.168,1.992
+17,dot versioned,94.787,90.664,2.295
+17,mm150 real,3.959,1.484,1.079
+17,mm500 real,24.021,20.619,2.376
+17,dot real,101.580,93.384,3.900
+18,startup (puts 1),4.307,0.875,1.173
+18,mm150 current,9.421,6.979,1.025
+18,mm150 versioned,3.582,1.348,0.974
+18,mm500 current (spinel),231.621,226.786,2.958
+18,mm500 current (direct cc),232.543,227.123,2.847
+18,mm500 versioned -fno-vectorize,47.186,43.048,1.809
+18,mm500 versioned,24.006,20.244,1.765
+18,dot current (spinel),154.025,150.483,2.019
+18,dot versioned -fno-vectorize,101.707,94.876,1.942
+18,dot versioned,93.239,89.198,1.981
+18,mm150 real,5.047,1.427,1.678
+18,mm500 real,22.880,19.552,1.916
+18,dot real,93.963,90.780,1.385
+19,startup (puts 1),3.580,0.913,1.178
+19,mm150 current,9.405,6.946,1.183
+19,mm150 versioned,3.335,1.308,0.881
+19,mm500 current (spinel),233.532,228.584,2.894
+19,mm500 current (direct cc),232.377,227.616,2.920
+19,mm500 versioned -fno-vectorize,45.207,41.898,1.716
+19,mm500 versioned,22.740,19.730,1.420
+19,dot current (spinel),155.264,151.763,1.936
+19,dot versioned -fno-vectorize,94.054,90.518,1.629
+19,dot versioned,93.027,89.726,1.578
+19,mm150 real,3.679,1.375,1.037
+19,mm500 real,22.350,19.544,1.471
+19,dot real,93.362,89.880,1.714
+20,startup (puts 1),3.249,0.797,0.952
+20,mm150 current,9.046,6.918,0.952
+20,mm150 versioned,3.731,1.420,1.016
+20,mm500 current (spinel),233.510,229.008,2.611
+20,mm500 current (direct cc),424.256,243.319,3.469
+20,mm500 versioned -fno-vectorize,44.701,41.522,1.593
+20,mm500 versioned,23.032,20.196,1.345
+20,dot current (spinel),154.191,150.553,2.218
+20,dot versioned -fno-vectorize,94.678,90.872,1.873
+20,dot versioned,98.660,93.779,1.740
+20,mm150 real,3.892,1.478,1.081
+20,mm500 real,22.715,20.068,1.379
+20,dot real,97.628,93.569,1.929
+21,startup (puts 1),3.669,0.911,1.265
+21,mm150 current,9.363,7.138,1.095
+21,mm150 versioned,3.601,1.384,0.992
+21,mm500 current (spinel),242.232,236.543,3.257
+21,mm500 current (direct cc),234.982,229.285,3.300
+21,mm500 versioned -fno-vectorize,45.650,42.006,1.843
+21,mm500 versioned,22.511,19.726,1.388
+21,dot current (spinel),157.030,152.784,2.576
+21,dot versioned -fno-vectorize,102.852,95.708,3.308
+21,dot versioned,97.331,93.428,1.752
+21,mm150 real,4.192,1.434,1.203
+21,mm500 real,22.555,19.837,1.283
+21,dot real,96.232,92.097,2.021
+22,startup (puts 1),3.221,0.816,1.001
+22,mm150 current,9.278,6.938,1.058
+22,mm150 versioned,3.476,1.330,0.941
+22,mm500 current (spinel),233.713,228.645,3.218
+22,mm500 current (direct cc),236.334,230.586,3.555
+22,mm500 versioned -fno-vectorize,44.825,41.497,1.692
+22,mm500 versioned,22.489,19.765,1.334
+22,dot current (spinel),155.510,151.662,2.100
+22,dot versioned -fno-vectorize,94.926,91.412,1.843
+22,dot versioned,92.523,89.372,1.623
+22,mm150 real,4.042,1.413,1.129
+22,mm500 real,21.772,19.401,1.237
+22,dot real,93.411,90.085,1.549
+23,startup (puts 1),3.270,0.809,1.035
+23,mm150 current,9.190,6.926,0.947
+23,mm150 versioned,3.474,1.279,0.896
+23,mm500 current (spinel),234.045,229.289,2.934
+23,mm500 current (direct cc),232.825,227.900,2.887
+23,mm500 versioned -fno-vectorize,56.573,45.444,2.587
+23,mm500 versioned,23.002,19.833,1.407
+23,dot current (spinel),154.945,151.097,2.008
+23,dot versioned -fno-vectorize,95.204,91.277,1.626
+23,dot versioned,92.483,89.549,1.455
+23,mm150 real,4.255,1.437,1.078
+23,mm500 real,21.951,19.431,1.321
+23,dot real,93.780,90.325,1.439
+24,startup (puts 1),5.606,1.245,1.874
+24,mm150 current,9.743,7.153,1.135
+24,mm150 versioned,3.770,1.423,1.044
+24,mm500 current (spinel),237.136,231.300,3.418
+24,mm500 current (direct cc),421.755,249.283,4.421
+24,mm500 versioned -fno-vectorize,45.931,41.890,1.801
+24,mm500 versioned,23.455,20.194,1.628
+24,dot current (spinel),154.551,150.760,2.091
+24,dot versioned -fno-vectorize,94.374,90.980,1.969
+24,dot versioned,94.074,90.659,1.782
+24,mm150 real,4.200,1.509,1.191
+24,mm500 real,22.076,19.502,1.288
+24,dot real,92.702,89.899,1.499
+25,startup (puts 1),3.212,0.800,1.017
+25,mm150 current,9.367,7.071,1.003
+25,mm150 versioned,3.787,1.446,1.038
+25,mm500 current (spinel),235.625,229.921,3.657
+25,mm500 current (direct cc),236.446,231.717,2.655
+25,mm500 versioned -fno-vectorize,45.384,42.162,1.596
+25,mm500 versioned,23.659,20.378,1.626
+25,dot current (spinel),156.064,152.060,2.048
+25,dot versioned -fno-vectorize,95.124,91.712,2.204
+25,dot versioned,93.123,89.748,1.724
+25,mm150 real,4.159,1.498,1.213
+25,mm500 real,22.387,19.570,1.400
+25,dot real,94.304,91.572,1.341
+26,startup (puts 1),3.035,0.767,0.956
+26,mm150 current,9.142,6.923,0.983
+26,mm150 versioned,3.563,1.399,0.959
+26,mm500 current (spinel),233.798,228.723,3.246
+26,mm500 current (direct cc),233.670,228.871,2.835
+26,mm500 versioned -fno-vectorize,45.433,42.147,1.692
+26,mm500 versioned,22.937,19.998,1.429
+26,dot current (spinel),154.772,151.001,2.071
+26,dot versioned -fno-vectorize,94.873,91.403,1.815
+26,dot versioned,92.334,89.086,1.583
+26,mm150 real,3.766,1.397,1.025
+26,mm500 real,22.366,19.730,1.319
+26,dot real,92.222,89.003,1.853
+27,startup (puts 1),3.254,0.801,0.986
+27,mm150 current,9.412,7.118,1.021
+27,mm150 versioned,3.518,1.326,0.935
+27,mm500 current (spinel),233.619,228.328,3.756
+27,mm500 current (direct cc),234.345,229.222,3.433
+27,mm500 versioned -fno-vectorize,45.344,42.005,1.740
+27,mm500 versioned,23.592,20.420,1.601
+27,dot current (spinel),154.886,150.855,1.974
+27,dot versioned -fno-vectorize,95.544,91.844,1.805
+27,dot versioned,93.246,89.920,1.559
+27,mm150 real,3.883,1.386,1.029
+27,mm500 real,22.587,19.825,1.471
+27,dot real,94.440,91.148,1.515
+28,startup (puts 1),3.588,0.873,1.103
+28,mm150 current,9.471,7.288,1.008
+28,mm150 versioned,3.632,1.311,0.973
+28,mm500 current (spinel),232.626,228.113,2.869
+28,mm500 current (direct cc),241.128,232.554,3.145
+28,mm500 versioned -fno-vectorize,44.916,41.497,1.780
+28,mm500 versioned,22.410,19.716,1.305
+28,dot current (spinel),155.686,151.787,2.077
+28,dot versioned -fno-vectorize,94.415,91.183,1.560
+28,dot versioned,95.538,91.942,1.699
+28,mm150 real,4.125,1.522,1.235
+28,mm500 real,22.537,19.769,1.357
+28,dot real,95.764,92.413,1.609
+29,startup (puts 1),3.366,0.871,1.085
+29,mm150 current,9.100,6.979,0.968
+29,mm150 versioned,3.468,1.322,0.932
+29,mm500 current (spinel),233.001,228.638,2.628
+29,mm500 current (direct cc),238.931,232.782,3.564
+29,mm500 versioned -fno-vectorize,44.935,41.637,1.750
+29,mm500 versioned,22.653,19.905,1.366
+29,dot current (spinel),155.321,151.494,1.972
+29,dot versioned -fno-vectorize,94.198,91.010,1.706
+29,dot versioned,93.179,90.152,1.492
+29,mm150 real,3.801,1.343,1.001
+29,mm500 real,22.512,19.845,1.338
+29,dot real,95.467,92.259,1.884
+30,startup (puts 1),3.751,0.931,1.255
+30,mm150 current,9.680,7.194,1.110
+30,mm150 versioned,3.473,1.401,0.965
+30,mm500 current (spinel),233.710,229.771,2.320
+30,mm500 current (direct cc),236.614,229.023,5.710
+30,mm500 versioned -fno-vectorize,45.978,41.986,2.332
+30,mm500 versioned,22.953,19.902,1.528
+30,dot current (spinel),162.391,156.988,3.129
+30,dot versioned -fno-vectorize,105.273,99.255,3.449
+30,dot versioned,96.509,92.852,2.195
+30,mm150 real,4.039,1.473,1.079
+30,mm500 real,22.244,19.701,1.364
+30,dot real,94.557,91.370,1.742
+31,startup (puts 1),3.601,0.973,1.153
+31,mm150 current,9.917,7.328,1.100
+31,mm150 versioned,3.787,1.455,1.021
+31,mm500 current (spinel),232.863,228.418,2.716
+31,mm500 current (direct cc),233.679,228.685,2.970
+31,mm500 versioned -fno-vectorize,45.019,41.706,2.000
+31,mm500 versioned,23.187,19.923,1.639
+31,dot current (spinel),157.583,152.802,3.004
+31,dot versioned -fno-vectorize,94.767,91.425,1.614
+31,dot versioned,93.460,90.136,1.666
+31,mm150 real,4.019,1.469,1.109
+31,mm500 real,22.220,19.873,1.221
+31,dot real,92.665,89.695,1.590
+32,startup (puts 1),3.332,0.847,1.085
+32,mm150 current,8.843,6.841,0.890
+32,mm150 versioned,3.392,1.293,0.906
+32,mm500 current (spinel),231.609,227.401,2.584
+32,mm500 current (direct cc),236.525,231.548,3.306
+32,mm500 versioned -fno-vectorize,46.920,42.117,2.342
+32,mm500 versioned,22.886,19.780,1.423
+32,dot current (spinel),155.642,151.008,2.657
+32,dot versioned -fno-vectorize,95.274,91.638,1.724
+32,dot versioned,93.653,89.870,1.586
+32,mm150 real,5.113,1.559,1.276
+32,mm500 real,23.035,19.900,1.298
+32,dot real,93.862,90.642,1.342
+33,startup (puts 1),3.522,0.822,1.068
+33,mm150 current,9.426,7.029,1.314
+33,mm150 versioned,4.089,1.480,1.114
+33,mm500 current (spinel),231.700,227.817,2.155
+33,mm500 current (direct cc),239.674,229.978,3.338
+33,mm500 versioned -fno-vectorize,44.830,41.289,1.707
+33,mm500 versioned,22.813,19.971,1.396
+33,dot current (spinel),154.114,151.032,1.732
+33,dot versioned -fno-vectorize,95.046,91.381,1.934
+33,dot versioned,94.067,90.691,1.809
+33,mm150 real,3.967,1.414,1.100
+33,mm500 real,22.075,19.563,1.282
+33,dot real,92.094,89.148,1.437
+34,startup (puts 1),3.265,0.801,1.002
+34,mm150 current,8.919,6.787,0.867
+34,mm150 versioned,3.443,1.331,0.931
+34,mm500 current (spinel),238.699,234.029,2.585
+34,mm500 current (direct cc),236.125,230.956,2.889
+34,mm500 versioned -fno-vectorize,44.559,41.401,1.597
+34,mm500 versioned,22.472,19.910,1.254
+34,dot current (spinel),154.579,151.383,1.787
+34,dot versioned -fno-vectorize,94.696,91.510,1.514
+34,dot versioned,95.640,91.578,2.175
+34,mm150 real,3.836,1.425,1.016
+34,mm500 real,23.150,20.101,1.636
+34,dot real,93.314,89.966,1.596
+35,startup (puts 1),3.049,0.792,0.993
+35,mm150 current,9.233,7.025,0.950
+35,mm150 versioned,3.207,1.301,0.888
+35,mm500 current (spinel),419.232,244.659,3.392
+35,mm500 current (direct cc),236.775,231.508,2.969
+35,mm500 versioned -fno-vectorize,44.642,41.512,1.565
+35,mm500 versioned,22.449,19.714,1.316
+35,dot current (spinel),156.909,153.063,2.235
+35,dot versioned -fno-vectorize,96.399,92.149,2.252
+35,dot versioned,93.446,89.981,1.732
+35,mm150 real,3.651,1.412,1.012
+35,mm500 real,22.313,19.679,1.670
+35,dot real,94.246,90.941,1.838
+36,startup (puts 1),3.426,0.835,1.077
+36,mm150 current,9.112,6.977,1.000
+36,mm150 versioned,3.188,1.287,0.861
+36,mm500 current (spinel),231.814,227.399,2.853
+36,mm500 current (direct cc),233.325,228.274,2.953
+36,mm500 versioned -fno-vectorize,45.013,41.517,1.711
+36,mm500 versioned,22.594,19.805,1.341
+36,dot current (spinel),154.646,151.087,2.087
+36,dot versioned -fno-vectorize,95.041,91.379,1.774
+36,dot versioned,93.862,89.540,2.526
+36,mm150 real,3.995,1.429,1.146
+36,mm500 real,23.135,20.017,1.925
+36,dot real,93.192,90.304,1.371
+37,startup (puts 1),3.389,0.884,1.249
+37,mm150 current,9.767,7.111,1.141
+37,mm150 versioned,4.029,1.431,1.133
+37,mm500 current (spinel),232.573,228.239,2.512
+37,mm500 current (direct cc),231.735,227.151,2.738
+37,mm500 versioned -fno-vectorize,45.380,42.109,1.525
+37,mm500 versioned,22.636,19.830,1.446
+37,dot current (spinel),154.093,150.919,1.591
+37,dot versioned -fno-vectorize,95.131,91.395,1.889
+37,dot versioned,92.982,89.892,1.326
+37,mm150 real,3.760,1.376,0.947
+37,mm500 real,22.320,19.858,1.272
+37,dot real,92.481,89.150,1.812
+38,startup (puts 1),3.311,0.806,1.033
+38,mm150 current,9.020,6.816,1.003
+38,mm150 versioned,3.427,1.307,0.893
+38,mm500 current (spinel),242.608,231.483,3.093
+38,mm500 current (direct cc),233.477,228.645,3.192
+38,mm500 versioned -fno-vectorize,46.776,42.436,1.920
+38,mm500 versioned,23.232,20.003,1.479
+38,dot current (spinel),154.870,151.002,2.063
+38,dot versioned -fno-vectorize,94.625,90.553,2.013
+38,dot versioned,94.478,90.118,1.915
+38,mm150 real,4.695,1.423,1.117
+38,mm500 real,22.871,19.497,1.576
+38,dot real,91.982,88.882,1.461
+39,startup (puts 1),3.181,0.839,0.985
+39,mm150 current,9.209,6.886,0.942
+39,mm150 versioned,3.352,1.302,0.862
+39,mm500 current (spinel),233.819,228.701,3.308
+39,mm500 current (direct cc),233.808,228.531,3.175
+39,mm500 versioned -fno-vectorize,44.850,41.754,1.656
+39,mm500 versioned,22.660,19.939,1.353
+39,dot current (spinel),154.634,151.170,1.832
+39,dot versioned -fno-vectorize,95.520,92.131,1.747
+39,dot versioned,95.739,92.603,1.535
+39,mm150 real,4.224,1.481,1.163
+39,mm500 real,22.664,20.058,1.353
+39,dot real,93.471,90.745,1.381
+40,startup (puts 1),3.191,0.807,1.023
+40,mm150 current,9.091,6.970,0.912
+40,mm150 versioned,3.397,1.356,0.914
+40,mm500 current (spinel),233.671,229.051,2.855
+40,mm500 current (direct cc),235.032,229.544,2.946
+40,mm500 versioned -fno-vectorize,45.014,41.839,1.630
+40,mm500 versioned,23.096,20.260,1.581
+40,dot current (spinel),157.838,154.148,1.816
+40,dot versioned -fno-vectorize,95.944,92.485,1.619
+40,dot versioned,94.757,91.367,1.665
+40,mm150 real,4.296,1.569,1.188
+40,mm500 real,22.606,19.756,1.379
+40,dot real,93.558,90.438,1.572

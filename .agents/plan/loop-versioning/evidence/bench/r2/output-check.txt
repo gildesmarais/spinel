@@ -1,0 +1,14 @@
+# one run per variant, stdout compared with the expected text
+startup (puts 1): tmp/loop-versioning/startup.spinel sha256 b8812851a92c23be -> "1\n" ok
+mm150 current: tmp/loop-versioning/mm150.spinel sha256 28c753f478323b82 -> "-29502222\n-77855452\ndone\n" ok
+mm150 versioned: tmp/loop-versioning/mm150.versioned sha256 092bc473f4a7edc2 -> "-29502222\n-77855452\ndone\n" ok
+mm500 current (spinel): tmp/loop-versioning/mm500.spinel sha256 2038757e2bf032a4 -> "-99500666\n-264506657\ndone\n" ok
+mm500 current (direct cc): tmp/loop-versioning/mm500.current-direct sha256 eb72bcd3dae4a7a8 -> "-99500666\n-264506657\ndone\n" ok
+mm500 versioned -fno-vectorize: tmp/loop-versioning/mm500.versioned-novec sha256 a60790720c563117 -> "-99500666\n-264506657\ndone\n" ok
+mm500 versioned: tmp/loop-versioning/mm500.versioned sha256 a38f56fd8915ecc6 -> "-99500666\n-264506657\ndone\n" ok
+dot current (spinel): tmp/loop-versioning/dotbench.spinel sha256 cfe5b8bc2d7e67cf -> "-38908921792726.77\n" ok
+dot versioned -fno-vectorize: tmp/loop-versioning/dotbench.versioned-novec sha256 e51cde54d18871dc -> "-38908921792726.77\n" ok
+dot versioned: tmp/loop-versioning/dotbench.versioned sha256 af07d2538702085b -> "-38908921792726.77\n" ok
+mm150 real: tmp/loop-versioning/mm150.real sha256 83fafe32b4933f9e -> "-29502222\n-77855452\ndone\n" ok
+mm500 real: tmp/loop-versioning/mm500.real sha256 983b427210f327c9 -> "-99500666\n-264506657\ndone\n" ok
+dot real: tmp/loop-versioning/dotbench.real sha256 94f716ec3bfdb290 -> "-38908921792726.77\n" ok

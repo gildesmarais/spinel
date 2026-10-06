@@ -1,0 +1,35 @@
+# session r2: 3 warm-up rounds discarded, 40 rounds, variants interleaved in the order below
+# measured 2026-10-06T10:32:42Z .. 2026-10-06T10:33:24Z
+# idle before: IDLE; overridden under user authorization (owner, 2026-10-06 12:28 local: on AC, idle, benchmarking authorized): CPU idle 85.4% < 90%; 1-minute load 2.74 > 2.0
+# idle after: IDLE; overridden under user authorization (owner, 2026-10-06 12:28 local: on AC, idle, benchmarking authorized): CPU idle 83.9% < 90%; 1-minute load 2.76 > 2.0
+
+variant                              n  median_ms     min_ms      q1_ms      q3_ms     iqr_ms     max_ms
+startup (puts 1)                    40       3.32       2.73       3.21       3.50       0.30       5.61
+mm150 current                       40       9.22       8.84       9.08       9.41       0.33       9.92
+mm150 versioned                     40       3.47       3.19       3.37       3.64       0.27       4.09
+mm500 current (spinel)              40     232.74     228.20     231.33     233.88       2.54     430.04
+mm500 current (direct cc)           40     233.57     228.11     231.87     236.47       4.59     424.26
+mm500 versioned -fno-vectorize      40      45.09      44.29      44.83      45.51       0.68      56.57
+mm500 versioned                     40      22.91      22.24      22.63      23.21       0.58      25.50
+dot current (spinel)                40     154.92     152.08     154.11     156.07       1.96     162.53
+dot versioned -fno-vectorize        40      95.04      93.11      94.40      95.55       1.15     105.27
+dot versioned                       40      93.48      91.87      93.06      94.76       1.70     100.39
+mm150 real                          40       4.03       3.38       3.85       4.19       0.34       5.11
+mm500 real                          40      22.48      21.77      22.21      22.73       0.52      24.02
+dot real                            40      93.34      91.81      92.50      94.03       1.53     101.58
+
+ratios of medians
+  mm500 current (spinel)           / mm500 versioned -fno-vectorize   = 5.16x
+  mm500 versioned -fno-vectorize   / mm500 versioned                  = 1.97x
+  mm500 current (spinel)           / mm500 versioned                  = 10.16x
+  mm500 current (spinel)           / mm500 current (direct cc)        = 1.00x
+  dot current (spinel)             / dot versioned -fno-vectorize     = 1.63x
+  dot versioned -fno-vectorize     / dot versioned                    = 1.02x
+  mm150 current                    / mm150 versioned                  = 2.65x
+  mm150 current                    / startup (puts 1)                 = 2.78x
+  mm500 current (spinel)           / mm500 real                       = 10.35x
+  mm500 real                       / mm500 versioned                  = 0.98x
+  dot current (spinel)             / dot real                         = 1.66x
+  dot real                         / dot versioned                    = 1.00x
+  mm150 current                    / mm150 real                       = 2.29x
+  mm150 real                       / mm150 versioned                  = 1.16x

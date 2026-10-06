@@ -1,10 +1,12 @@
 # Loop versioning for typed-array kernels — design notes
 
-> A **working document**, not a user guarantee. It is the plan for making
-> numeric `while` loops over `IntArray` / `FloatArray` run as plain C pointer
-> loops, which the host compiler then vectorizes on its own. Nothing here is
-> implemented yet. The phased implementation plan and the evidence behind
-> every number and claim below are in
+> A **working document**, not a user guarantee. It describes how numeric
+> `while` loops over `IntArray` / `FloatArray` run as plain C pointer loops,
+> which the host compiler then vectorizes on its own. Phase 1 below is
+> implemented: loops in builds without threads or finalizers. The chunked
+> form for threaded and finalizer builds (phase 2) is not. The phased
+> implementation plan and the evidence behind every number and claim below
+> are in
 > [`.agents/plan/loop-versioning.md`](../../.agents/plan/loop-versioning.md)
 > and [`.agents/plan/loop-versioning/evidence/`](../../.agents/plan/loop-versioning/evidence/).
 
@@ -62,6 +64,38 @@ interleave 4) a further 2.0x, 10.1x in all. No `-march`, no `restrict`: clang
 emitted its own run-time overlap check between `c` and `b`. For the
 reduction, hoisting is 1.65x and vectorization adds nothing (below).
 
+### As built
+
+The same programs compiled by `bin/spinel` with phase 1 in place, timed in
+two further sessions (r1, r2) interleaved with the prototype and the current
+binaries, so all four builds share each session's conditions. Medians, r1 /
+r2:
+
+| Build                                          | matmul n = 500      | dot             |
+| ---------------------------------------------- | ------------------- | --------------- |
+| Current emitted C                              | 231.2 / 232.7 ms    | 154.6 / 154.9 ms |
+| Prototype, `-fno-vectorize -fno-slp-vectorize` | 45.3 / 45.1 ms      | 94.3 / 95.0 ms  |
+| Prototype, default `-O2`                       | 23.0 / 22.9 ms      | 93.6 / 93.5 ms  |
+| **Real build**                                 | **22.3 / 22.5 ms**  | **93.5 / 93.3 ms** |
+
+The real build is 10.4x on matmul and 1.65x on the dot product, against
+10.1x and 1.65x for the prototype in the same sessions: it matches the
+prototype, 2–3% ahead on matmul. Its inner loops vectorize as the
+prototype's do: matmul at width 2, interleave 4, and the dot product as the
+same ordered reduction. It also versions `bm_matmul`'s initialisation loops
+(`a[i*n+j] = ...`), which the prototype left alone, and clang vectorizes
+those too. Every build ran about 4% slower than in the prototype's sessions,
+the ratios did not move, and the two sessions agree to within 0.8% on every
+kernel median. The machine was in use and was above the harness's idle bar
+(load 2.5–2.8, 84–86% CPU idle, no process above 15%); the sessions ran on
+AC power with the owner's authorization, and the evidence records it.
+
+At `n = 150` the sessions read 4.05 / 4.03 ms for the real build against
+3.43 / 3.47 ms for the prototype. That gap comes from the harness's fixed
+order: the real build runs right after the 93 ms dot program. Timed
+directly behind a dot run, both builds take 4.0 ms; in a neutral order,
+both take 3.3 ms.
+
 The shipped `n = 150` cannot show the split: process start-up alone is
 2.6 ms, and the versioned kernel is about 0.5 ms on top of it, so the raw
 times read 2.7x where the kernel is 10x, and the vectorization half is within
@@ -92,13 +126,17 @@ All of these, or the loop is emitted as today:
    loop is `j = <Integer literal >= 0>`, the predicate is `j < N`, the body's
    last statement is `j += 1` or `j = j + 1` (`bm_matmul` writes the second,
    which `hc_bounded_index` does not accept), and nothing else writes `j`
-   (`subtree_changes_local`). `N` is either `a.length` / `a.size` of a cached
-   array (today's case) or an Int local the loop does not assign.
-3. Every typed-array access in the body (`x[e]`, `x[e] = v`, `x[e] op= v` on a
-   cached `IntArray` / `FloatArray`) has an index of the form `j`, `B + j` or
+   (`subtree_changes_local`). `N` is an Int literal or an Int local the loop
+   does not assign. (`a.length` / `a.size`, `hc_bounded_index`'s case, is
+   not taken yet.)
+3. Every typed-array access in the body (`x[e]`, `x[e] = v` on a cached
+   `IntArray` / `FloatArray`) has an index of the form `j`, `B + j` or
    `j + B`, where `B` is built from Int literals, locals the loop does not
    assign, and `+` / `-` / `*`. One access of any other shape disqualifies the
-   whole loop: keeping one checked access would keep an early exit.
+   whole loop: keeping one checked access would keep an early exit. So does
+   an element `x[e] op= v`, whose store site is not versioned yet, and a
+   `break`, `next` or `redo`: a `next` would skip the closing increment that
+   the fast loop's `j++` stands for.
 4. No array in the loop is one analysis marked as holding nil
    (`nullable_int_elem_array`). `may_nil` is kept up to date only for the
    unmarked ones: a marked array's stores set no flag and its whole-array
@@ -133,16 +171,25 @@ not a wrong answer.
 
 ### The fast loop
 
+What `bm_matmul`'s inner loop emits (the guard abridged):
+
 ```c
 {
-  /* hc declarations and _SP_HCR() as today */
-  if (<entry guard>) {
-    for (; lv_j < lv_n; lv_j++)
-      _hcd2_0[_ofs_c + lv_j] = _hcd2_0[_ofs_c + lv_j] + lv_aik * _hcd2_1[_ofs_b + lv_j];
-  } else
-  while ((lv_j < lv_n)) { /* today's text */ }
+  /* hc declarations and _SP_HCR2() as today */
+  { int _lvg2 = 1; sp_int _lvn2 = lv_n; if (_lvn2 < 0) _lvg2 = 0; /* ... */
+    if (_lvg2) {
+      for (; lv_j < _lvn2; lv_j++) {
+        { sp_float _t20 = (_hcd2_0[_lvo2_0 + lv_j] + (lv_aik * _hcd2_1[_lvo2_1 + lv_j])); _hcd2_0[_lvo2_0 + lv_j] = _t20; }
+      }
+    } else {
+      while ((lv_j < lv_n)) { /* today's text */ }
+    }
+  }
 }
 ```
+
+The guard's locals are `_lvgN` (it holds), `_lvnN` (the bound), `_lvoN_k`
+(each offset `B`) and `_lvtN_t` (the overflow chain's temporaries).
 
 - `j` stays the Ruby local, so its value after the loop is the same as today.
 - Array reads and writes are raw `data[ofs + j]`. No `_hcw` test, no slow path,
@@ -217,25 +264,30 @@ can deny it loop by loop, and a denied loop is emitted exactly as today.
 
 ## Where the code goes
 
-- `src/codegen_stmt.c`: extend `HcRegion` with the induction fact (`j`, `N`),
-  a small table of `(array entry, offset expression)`, and a fast-mode flag; a
-  new `hc_versioned_shape` next to `hc_bounded_index`; `emit_while` emits the
-  guard and both loops inside the existing `hc_close` frame. The body is
-  emitted for today's loop first, which fills the entry table, then again in
-  fast mode; a fast emission that would add an entry is abandoned.
+- `src/codegen_stmt.c`: `HcRegion` carries the induction fact (`j`), a small
+  table of `(array entry, offset expression)` uses, the guarded locals, and a
+  fast-mode flag; `hc_versioned_shape` sits next to `hc_bounded_index`;
+  `hc_version` emits the guard and the fast loop, and `hc_close` writes them
+  ahead of today's loop inside the existing frame. The body is emitted for
+  today's loop first, which fills the entry table, then again in fast mode;
+  a fast emission that would add an entry, or whose text still holds a slow
+  path, is dropped and the loop keeps today's form alone.
 - The guard owns each offset `B`: a small emitter for the offset grammar
   writes `__builtin_*_overflow` chains into a local, and the fast access
   sites read that local rather than recompute `B`. (`emit_int_expr` cannot
   serve: its `sp_int_mul` raises on overflow where the guard must fail.)
 - One predicate on the region answers "is this operand nil-free in the fast
-  loop" (`hc_fast_nilfree`, next to `hc_array_nilfree`).
-- The access sites that consult the cache take the region's fast mode and emit
-  the raw access: the read in `src/codegen_call_recv.c` (the
-  `is_element_at_alias` branch, `hc_index_in_range`), the `[]=` store and the
-  `op=` store in `src/codegen_stmt.c`, and `emit_nilfree_operand`. A fifth
-  site emits the `SP_FLOAT_NIL_CK` on `c[..] + aik * b[..]`: the binary Float
-  operator in `src/codegen_call.c`, gated by `cmp_operand_may_be_nil`, which
-  asks the region's predicate in fast mode.
+  loop" (`hc_fast_nilfree`); asking it about a local is what puts that local's
+  nil test in the guard.
+- The access sites that consult the cache ask `hc_fast_access` for the raw
+  access: the read in `src/codegen_call_recv.c` (the `is_element_at_alias`
+  branch, ahead of `hc_index_in_range`) and the `[]=` store in
+  `src/codegen_stmt.c`. `emit_nilfree_operand` stands aside in fast mode,
+  since the read it would wrap is already raw. The nil checks go where they
+  are decided: the binary Float operator in `src/codegen_call.c`, which emits
+  the `SP_FLOAT_NIL_CK` on `c[..] + aik * b[..]`, is gated by
+  `cmp_operand_may_be_nil`, and `emit_scalar_op_assign` by its own operand
+  test; both ask `hc_fast_nilfree`.
 - No analysis change and no new pass. The decision needs state that exists
   only while `emit_while` runs: the cache's entry table is filled lazily, by
   the access sites, as the body is emitted (`hc_array` → `hc_entry`), and each
@@ -246,7 +298,7 @@ can deny it loop by loop, and a denied loop is emitted exactly as today.
 
 ## Phases
 
-1. **Single-threaded fast loop**: the shape, guard and fast loop above, only
+1. **Single-threaded fast loop** (implemented): the shape, guard and fast loop above, only
    when neither `g_uses_threads` nor `g_uses_finalizers` is set, with
    fixtures pinning today's behaviour where the guard must fail (a nil
    element, a short array, a frozen array, one array under two names, an
@@ -282,9 +334,9 @@ The steps, files and gates of each phase are in the plan.
   arithmetic semantics (Int/Float coercion, overflow helpers, floored
   division). The fast body goes through the normal emitters, with the region
   in fast mode.
-- **A fast-loop flag tested at each access site separately.** Five sites would
-  each own the fact "this operand is nil-free here"; one region predicate owns
-  it instead.
+- **A fast-loop flag tested at each access site separately.** Each site would
+  own the fact "this operand is nil-free here"; one region predicate owns it
+  instead.
 - **Static bounds and nil proofs.** Parameters' lengths and contents are not
   known at compile time; the analysis already marks these elements nullable.
   Run-time guards decide the same question exactly.

@@ -376,6 +376,72 @@ same as spinel's binary, so compiling the extracted C directly does not skew
 the comparison. These numbers supersede the earlier `/tmp/simd` figures
 (263 / 55 / 31 ms, conditions unknown).
 
+### Real build (Phase 03: sessions r1, r2)
+
+`bench.rb build-real` compiled `gen/{mm150,mm500,dotbench}.rb` with the
+Phase 02 `bin/spinel` (cc argv identical to the current builds'), and
+`bench.rb run r1 real` / `run r2 real` timed them interleaved with the ten
+binaries above (13 variants, 3 warm-up rounds, 40 rounds;
+`bench/r1/`, `bench/r2/`). The gate before them: Phase 02's `make test`
+(6051 pass, 0 fail, 0 error, exit 0; `bin/spinel` relinked 08:38:38 local
+after the last source edit, results 08:39:18–08:48:11, log closed 08:50:12;
+the tree unchanged since `f343f3b8c`). It took about 12 minutes against the
+base run's 33 because the result cache (`tools/result_cache.sh`) skips the
+cc and the run of a test whose C did not change. spinel still runs on every
+test.
+
+**Run under user authorization, below the harness's idle bar.** The owner
+confirmed AC power and an idle machine at 12:28 local and authorized the
+runs. The check refused on its own thresholds (1-minute load 3.3 > 2.0 and
+CPU idle 79.6% < 90%, right after `make -j8`). `BENCH_AUTHORIZED` narrowed the
+veto to the owner's abort rule: battery, low power mode, a speed limit, a
+build/test process at ≥ 5% CPU, or any process at ≥ 80% CPU. Each report
+names the overridden reasons. Readings, before and after each session:
+
+| When (UTC) | load 1/5/15 | CPU idle | top consumers | power, thermal |
+| ---------- | ----------- | -------- | ------------- | -------------- |
+| r1 before, 10:31 | 2.46 5.53 7.06 | 85.8% | WindowServer 10.3, kernel_task 8.5, Cursor Helper (Renderer) 8.5, top 7.9, OrbStack Helper 5.3 | AC; no thermal or performance warning; lowpowermode 0 |
+| r1 after, 10:32 | 2.78 5.18 6.85 | 83.8% | kernel_task 8.8, Cursor Helper (Renderer) 7.7, launchd 7.7, WindowServer 7.6, top 7.5 | same |
+| r2 before, 10:32 | 2.74 5.01 6.75 | 85.4% | WindowServer 13.2, kernel_task 8.7, Cursor Helper (Renderer) 8.3, diskimagesiod 8.3, top 7.7 | same |
+| r2 after, 10:33 | 2.76 4.69 6.54 | 83.9% | spotlightknowled 14.8, kernel_task 13.2, WindowServer 11.0, Cursor Helper (Renderer) 7.8, top 7.2 | same |
+
+Results (ms, n = 40 per variant per session; IQR = q3 − q1):
+
+| Variant | r1 median | r1 min | r1 IQR | r2 median | r2 min | r2 IQR |
+| ------- | --------: | -----: | -----: | --------: | -----: | -----: |
+| startup (`puts 1`) | 3.28 | 2.65 | 0.26 | 3.32 | 2.73 | 0.30 |
+| mm150 current | 9.12 | 8.80 | 0.38 | 9.22 | 8.84 | 0.33 |
+| mm150 versioned (prototype) | 3.43 | 3.17 | 0.20 | 3.47 | 3.19 | 0.27 |
+| mm150 real | 4.05 | 3.53 | 0.29 | 4.03 | 3.38 | 0.34 |
+| mm500 current (spinel) | 231.22 | 226.21 | 5.18 | 232.74 | 228.20 | 2.54 |
+| mm500 current (direct cc) | 232.18 | 227.20 | 5.09 | 233.57 | 228.11 | 4.59 |
+| mm500 versioned -fno-vectorize | 45.25 | 43.85 | 1.25 | 45.09 | 44.29 | 0.68 |
+| mm500 versioned (prototype) | 22.96 | 22.26 | 0.71 | 22.91 | 22.24 | 0.58 |
+| **mm500 real** | **22.32** | 21.65 | 0.86 | **22.48** | 21.77 | 0.52 |
+| dot current (spinel) | 154.61 | 151.45 | 3.74 | 154.92 | 152.08 | 1.96 |
+| dot versioned -fno-vectorize | 94.28 | 91.68 | 2.59 | 95.04 | 93.11 | 1.15 |
+| dot versioned (prototype) | 93.56 | 91.61 | 2.49 | 93.48 | 91.87 | 1.70 |
+| **dot real** | **93.47** | 90.96 | 2.26 | **93.34** | 91.81 | 1.53 |
+
+current / real: mm500 10.36x / 10.35x, dot 1.65x / 1.66x. real / prototype:
+mm500 0.97x / 0.98x, dot 1.00x / 1.00x. The sessions agree within 0.8% on
+every mm500 and dot median. Every build ran about 4% slower than in s1/s2
+(mm500 current 231 against 222 ms), and the ratios are unchanged (prototype
+10.07x / 10.16x against 10.14x). So the real build matches the prototype;
+it is not short of it. Its C (`bin/spinel -S --no-line-map`) vectorizes at
+spinel's flags: the matmul inner loop at width 2, interleave 4; the dot loop
+as the same ordered reduction; and `bm_matmul`'s initialisation loop, which
+the prototype did not version.
+
+The mm150 gap (4.05 against 3.43 ms) is the round's fixed order, not the
+build. `mm150 real` runs right after `dot versioned`, and `startup` runs right
+after `dot real`, which is why it reads 3.3 ms where s1/s2 read 2.6. Measured
+with `bench.rb probe` (40 interleaved rounds), in a neutral order (`mm150.real
+mm150.versioned startup.spinel`) the two builds take 3.27 and 3.32 ms. With
+each placed behind `dotbench.versioned` they take 4.01 and 4.05 ms, and
+startup 3.23. The real build's own CPU time at n = 150 is within 0.1 ms user
+of the prototype's.
+
 **Why n = 150 is unusable for this.** `puts 1` alone takes 2.64 ms. At n =
 150 the versioned program takes 3.20 ms, so its kernel and setup together are
 about 0.56 ms above startup. That matches the n = 500 run scaled by n³

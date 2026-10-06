@@ -5,8 +5,21 @@
 #
 #   ruby bench.rb check          # idle check only; exit 0 idle, 2 busy
 #   ruby bench.rb run SESSION    # idle check, then measure; refuses when busy
+#   ruby bench.rb build-real     # build gen/{mm150,mm500,dotbench}.rb with bin/spinel as *.real
+#   ruby bench.rb run SESSION real   # as run, with the *.real binaries interleaved
+#   ruby bench.rb probe BIN...   # no idle check, nothing written: BIN... (names
+#                                # under tmp/loop-versioning/) interleaved in the
+#                                # order given, WARMUP + ROUNDS rounds, median/q1/q3
 #
-# Binaries come from regen.rb (tmp/loop-versioning/). A session: an idle
+# BENCH_AUTHORIZED="<who, when>" narrows the veto to the owner's own abort
+# rule (on battery, low power mode, a CPU speed limit, a build/test process
+# at >= 5% CPU, any process at >= 80% CPU); every other reason the check
+# finds is still written to the report, as overridden under that authorization.
+#
+# Binaries come from regen.rb (tmp/loop-versioning/), which built the
+# "current" ones with the base commit's bin/spinel; build-real builds the
+# "real" ones with the bin/spinel of the tree it runs in, through the same
+# cc wrapper, so their argv can be diffed with the current ones'. A session: an idle
 # check (uptime, top, pmset) written to bench/SESSION/idle-before.txt; each
 # variant run once and its stdout compared with its expected text; WARMUP
 # rounds discarded; ROUNDS rounds in which every variant runs once, always in
@@ -29,12 +42,14 @@ BIN = File.join(ROOT, "tmp", "loop-versioning")
 WARMUP = 3
 ROUNDS = 40
 
+REAL = %w[mm150 mm500 dotbench].freeze
+
 # name => [binary, args, expected stdout (or a regexp)]
-def variants
+def variants(real: false)
   mm150 = "-29502222\n-77855452\ndone\n"
   mm500 = /\A-?\d+\n-?\d+\ndone\n\z/
   dot = "-38908921792726.77\n"
-  {
+  vs = {
     "startup (puts 1)" => ["startup.spinel", [], "1\n"],
     "mm150 current" => ["mm150.spinel", [], mm150],
     "mm150 versioned" => ["mm150.versioned", [], mm150],
@@ -46,6 +61,10 @@ def variants
     "dot versioned -fno-vectorize" => ["dotbench.versioned-novec", [], dot],
     "dot versioned" => ["dotbench.versioned", [], dot]
   }
+  return vs unless real
+
+  vs.merge("mm150 real" => ["mm150.real", [], mm150], "mm500 real" => ["mm500.real", [], mm500],
+           "dot real" => ["dotbench.real", [], dot])
 end
 
 HEAVY = /\b(cc|clang|clang-\d+|ld|make|gmake|swift-frontend|swiftc|xcodebuild|cargo|rustc|node|mds_stores|mdworker\w*|spinel|ruby|python\d?|java|go)\b/
@@ -72,23 +91,30 @@ def idle_check
     { pid: f[0], cmd: f[1...-2].join(" "), cpu: f[-2].to_f }
   end.compact
   reasons = []
-  reasons << format("CPU idle %.1f%% < 90%%", idle) if idle < 90
-  reasons << format("1-minute load %.2f > 2.0", load1) if load1 > 2.0
+  soft = []
+  soft << format("CPU idle %.1f%% < 90%%", idle) if idle < 90
+  soft << format("1-minute load %.2f > 2.0", load1) if load1 > 2.0
   procs.each do |p|
     next if p[:cmd].start_with?("top") || p[:pid] == Process.pid.to_s
     # the editor hosting the agent that runs this harness: it cannot be
     # stopped from here, so it is recorded in the report but not a veto
     next if p[:cmd].start_with?("Cursor Helper") && p[:cpu] < 40
 
-    reasons << "#{p[:cmd]} (pid #{p[:pid]}) at #{p[:cpu]}% CPU" if p[:cpu] >= 15
+    (p[:cpu] >= 80 ? reasons : soft) << "#{p[:cmd]} (pid #{p[:pid]}) at #{p[:cpu]}% CPU" if p[:cpu] >= 15
     reasons << "#{p[:cmd]} (pid #{p[:pid]}) is a build/indexing process at #{p[:cpu]}% CPU" if p[:cmd] =~ HEAVY && p[:cpu] >= 5
   end
   reasons << "not on AC power" unless batt.include?("AC Power")
   reasons << "a CPU speed limit is recorded" if therm =~ /CPU_Speed_Limit\s*=\s*(\d+)/ && Regexp.last_match(1).to_i < 100
   reasons << "low power mode on" if lpm =~ /lowpowermode\s+1/
+  auth = ENV["BENCH_AUTHORIZED"].to_s
+  reasons.concat(soft) if auth.empty?
+  verdict = reasons.empty? ? "IDLE" : "BUSY: #{reasons.uniq.join('; ')}"
+  if !auth.empty? && !soft.empty?
+    verdict += "; overridden under user authorization (#{auth}): #{soft.uniq.join('; ')}"
+  end
   report = +"## #{Time.now.utc.strftime('%Y-%m-%dT%H:%M:%SZ')}\n### uptime\n#{up}### top -l 2 -o cpu -n 10 -s 1 (second sample)\n" \
             "Processes:#{second}### pmset -g batt\n#{batt}### pmset -g therm\n#{therm}### pmset -g (lowpowermode)\n#{lpm}" \
-            "### verdict: #{reasons.empty? ? 'IDLE' : "BUSY: #{reasons.uniq.join('; ')}"}\n"
+            "### verdict: #{verdict}\n"
   [report, reasons.empty?, reasons.uniq]
 end
 
@@ -125,7 +151,10 @@ def summarize(samples)
   [["mm500 current (spinel)", "mm500 versioned -fno-vectorize"], ["mm500 versioned -fno-vectorize", "mm500 versioned"],
    ["mm500 current (spinel)", "mm500 versioned"], ["mm500 current (spinel)", "mm500 current (direct cc)"],
    ["dot current (spinel)", "dot versioned -fno-vectorize"], ["dot versioned -fno-vectorize", "dot versioned"],
-   ["mm150 current", "mm150 versioned"], ["mm150 current", "startup (puts 1)"]].each do |a, b|
+   ["mm150 current", "mm150 versioned"], ["mm150 current", "startup (puts 1)"],
+   ["mm500 current (spinel)", "mm500 real"], ["mm500 real", "mm500 versioned"],
+   ["dot current (spinel)", "dot real"], ["dot real", "dot versioned"],
+   ["mm150 current", "mm150 real"], ["mm150 real", "mm150 versioned"]].each do |a, b|
     out << format("  %-32s / %-32s = %.2fx\n", a, b, med[a] / med[b]) if med[a] && med[b]
   end
   out
@@ -136,8 +165,30 @@ when "check"
   report, ok, = idle_check
   puts report
   exit(ok ? 0 : 2)
+when "build-real"
+  spinel = File.join(ROOT, "bin", "spinel")
+  REAL.each do |name|
+    out = File.join(BIN, "#{name}.real")
+    log = "#{out}.ccargs"
+    _, st = Open3.capture2e({ "CCWRAP_LOG" => log }, spinel, File.join(EV, "gen", "#{name}.rb"),
+                            "--cc=#{File.join(EV, 'tools', 'ccwrap.sh')}", "-o", out)
+    abort "#{name}: spinel failed" unless st.success?
+    same = File.read(log).lines.reject { |l| l.include?("/") } == File.read(File.join(BIN, "#{name}.ccargs")).lines.reject { |l| l.include?("/") }
+    puts "#{name}.real: sha256 #{Digest::SHA256.file(out).hexdigest[0, 16]}; cc flags #{same ? 'same as' : 'DIFFER from'} #{name}.spinel's"
+  end
+when "probe"
+  bins = ARGV.drop(1)
+  abort "usage: bench.rb probe BIN..." if bins.empty?
+  WARMUP.times { bins.each { |b| run_once(File.join(BIN, b), []) } }
+  walls = Array.new(bins.size) { [] }
+  ROUNDS.times { bins.each_with_index { |b, i| walls[i] << run_once(File.join(BIN, b), [])[0] } }
+  bins.each_with_index do |b, i|
+    w = walls[i].sort
+    puts format("%2d %-28s median %7.2f  q1 %7.2f  q3 %7.2f", i + 1, b, quantile(w, 0.5), quantile(w, 0.25), quantile(w, 0.75))
+  end
 when "run"
-  session = ARGV[1] or abort "usage: bench.rb run SESSION"
+  session = ARGV[1] or abort "usage: bench.rb run SESSION [real]"
+  real = ARGV[2] == "real"
   dir = File.join(EV, "bench", session)
   abort "#{dir} exists; pick a new session name" if File.exist?(dir)
   report, ok, reasons = idle_check
@@ -147,7 +198,7 @@ when "run"
   end
   FileUtils.mkdir_p(dir)
   File.write(File.join(dir, "idle-before.txt"), report)
-  vs = variants
+  vs = variants(real: real)
   check = +"# one run per variant, stdout compared with the expected text\n"
   vs.each do |name, (bin, args, exp)|
     path = File.join(BIN, bin)
@@ -172,14 +223,15 @@ when "run"
     f.puts "round,variant,wall_ms,user_ms,sys_ms"
     samples.each { |s| f.puts format("%d,%s,%.3f,%.3f,%.3f", s[:round], s[:variant], s[:wall], s[:user], s[:sys]) }
   end
-  after, ok_after, reasons_after = idle_check
+  after, = idle_check
   File.write(File.join(dir, "idle-after.txt"), after)
   sum = +"# session #{session}: #{WARMUP} warm-up rounds discarded, #{ROUNDS} rounds, variants interleaved in the order below\n"
   sum << "# measured #{started.strftime('%Y-%m-%dT%H:%M:%SZ')} .. #{finished.strftime('%Y-%m-%dT%H:%M:%SZ')}\n"
-  sum << "# idle after: #{ok_after ? 'IDLE' : "BUSY: #{reasons_after.join('; ')}"}\n\n"
+  sum << "# idle before: #{report[/^### verdict: (.*)$/, 1]}\n"
+  sum << "# idle after: #{after[/^### verdict: (.*)$/, 1]}\n\n"
   sum << summarize(samples)
   File.write(File.join(dir, "summary.txt"), sum)
   puts sum
 else
-  abort "usage: bench.rb check | run SESSION"
+  abort "usage: bench.rb check | build-real | run SESSION [real]"
 end
