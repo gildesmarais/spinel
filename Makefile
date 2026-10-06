@@ -1950,10 +1950,16 @@ byref-capture-test: $(SPINEL) $(RBS_EXTRACT_BIN) $(SP_RT_LIB) $(SPINEL_TIMEOUT)
 # threaded build the fast arm runs in chunks (LOOP_VERSION_CHUNKED): each
 # chunk's inner loop is as check-free, the poll between chunks refreshes the
 # cache, the guard is tested again, and today's loop follows to go on from
-# where the arm stopped. That fixture also runs on one worker, where the other
-# thread gets in only at a poll.
-LOOP_VERSION_TESTS = $(wildcard test/loop_version_*.rb)
-LOOP_VERSION_CHUNKED = test/loop_version_thread_shrink.rb
+# where the arm stopped. Those fixtures also run on one worker, where the other
+# thread gets in only at a poll. LOOP_VERSION_HANDOFF lands its change at the
+# poll between two chunks by construction (its header says how), so the
+# re-test fails and today's loop takes over mid-range on 1, 2 and 8 workers;
+# a fast arm that ran on prints `finished`. It is left out of the GC-stress
+# runs: there its finalizer's object outlives the collection the fixture sets
+# off, and is finalized only by the next pass's GC.start.
+LOOP_VERSION_HANDOFF = test/loop_version_chunk_handoff.rb
+LOOP_VERSION_TESTS = $(filter-out $(LOOP_VERSION_HANDOFF),$(wildcard test/loop_version_*.rb))
+LOOP_VERSION_CHUNKED = test/loop_version_thread_shrink.rb $(LOOP_VERSION_HANDOFF)
 loop-version-test: $(SPINEL) $(SP_RT_LIB) $(SPINEL_TIMEOUT)
 	@tmp=$$(mktemp -d /tmp/spinel-loopver.XXXXXX); ok=1; \
 	for f in test/loop_version_alias.rb test/loop_version_reduction.rb; do \
@@ -1986,6 +1992,14 @@ loop-version-test: $(SPINEL) $(SP_RT_LIB) $(SPINEL_TIMEOUT)
 	  SPINEL_WORKERS=1 $(TIMEOUT60) "$$tmp/b" > "$$tmp/out" 2>&1; \
 	  cmp -s "$$tmp/out" $$f.expected || \
 	    { echo "loop-version-test: FAIL ($$f differs, SPINEL_WORKERS=1)"; diff -u $$f.expected "$$tmp/out" | head -5; ok=0; }; \
+	done; \
+	for f in $(LOOP_VERSION_HANDOFF); do \
+	  $(SPINEL) $$f -o "$$tmp/b" >/dev/null 2>&1 || { echo "loop-version-test: FAIL ($$f: compile)"; ok=0; continue; }; \
+	  for w in 2 8; do \
+	    SPINEL_WORKERS=$$w $(TIMEOUT60) "$$tmp/b" > "$$tmp/out" 2>&1; \
+	    cmp -s "$$tmp/out" $$f.expected || \
+	      { echo "loop-version-test: FAIL ($$f differs, SPINEL_WORKERS=$$w)"; diff -u $$f.expected "$$tmp/out" | head -5; ok=0; }; \
+	  done; \
 	done; \
 	for f in $(LOOP_VERSION_TESTS); do \
 	  $(SPINEL) $$f -o "$$tmp/b" >/dev/null 2>&1 || { echo "loop-version-test: FAIL ($$f: compile)"; ok=0; continue; }; \
