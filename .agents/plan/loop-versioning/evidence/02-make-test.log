@@ -1,0 +1,32 @@
+## run 1: make test
+Mon Oct  5 19:12:56 UTC 2026
+rbs-seed-test: pass
+RBS extractor tests: 15 pass
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -Werror=return-type -Isrc -Ibuild/csrc -c src/main.c -o build/csrc/main.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off build/csrc/node_table.o build/csrc/types.o build/csrc/compiler.o build/csrc/ffi_spec.o build/csrc/analyze.o build/csrc/analyze_util.o build/csrc/analyze_infer.o build/csrc/analyze_infer_recv.o build/csrc/analyze_scope.o build/csrc/analyze_pass.o build/csrc/analyze_desugar.o build/csrc/analyze_nil.o build/csrc/repr.o build/csrc/codegen.o build/csrc/codegen_util.o build/csrc/ty_traits_check.o build/csrc/codegen_fold.o build/csrc/codegen_call.o build/csrc/codegen_call_poly.o build/csrc/codegen_call_method.o build/csrc/codegen_call_io.o build/csrc/codegen_call_kernel.o build/csrc/codegen_call_exception.o build/csrc/codegen_call_module.o build/csrc/codegen_call_string.o build/csrc/codegen_call_class.o build/csrc/codegen_call_operator.o build/csrc/codegen_call_object.o build/csrc/codegen_ops.o build/csrc/codegen_call_concurrency.o build/csrc/codegen_call_numeric.o build/csrc/codegen_call_hash.o build/csrc/codegen_call_array.o build/csrc/codegen_view.o build/csrc/builtin_ops.o build/csrc/builtin_names.o build/csrc/codegen_call_recv.o build/csrc/codegen_iter.o build/csrc/call_plan.o build/csrc/codegen_poly_plan.o build/csrc/codegen_expr.o build/csrc/codegen_stmt.o build/csrc/csplit.o build/csrc/main.o build/csrc/decide.o build/csrc/sp_parse_lib.o build/csrc/re_lit_check.o build/regexp/re_compile.o build/regexp/re_exec.o build/regexp/re_utf8.o build/regexp/unicase.o build/regexp/re_spinel.o build/libprism.a -lm  -o bin/spinel
+check-stores-test: pass
+reject-test: pass
+backtrace-test: pass
+re-lit-test: pass
+link-names-test: pass
+defer-refusals-test: pass
+cli-opts-test: pass
+gc-threshold-test: pass
+gc-phases-test: pass
+byref-capture-test: pass
+gc-obj-budget-test: pass
+gc-str-major-test: pass
+ext-test: pass
+gc-locality-test: pass
+gc-stress-test: pass
+thread-puts-test: pass
+ext-cruby-test: pass
+threaded-render-test: pass
+gc-minor-test: pass
+decisions-test: pass
+Tests:     6044 pass,        0 fail,        0 error
+real 1975.95
+user 6568.65
+sys 1277.66
+exit=0
+Mon Oct  5 19:45:52 UTC 2026

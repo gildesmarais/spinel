@@ -1,0 +1,6 @@
+FrozenError
+can't modify frozen Array: [0.0, 0.0, 0.0, 0.0]
+[0.0, 0.0, 0.0, 0.0]
+true
+--- stderr
+--- exit 0

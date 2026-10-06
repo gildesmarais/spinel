@@ -1,0 +1,13 @@
+# mm500.rb dump: every element of c, one per line
+ruby (CRuby)     sha256 fd7e258a5e15622c3eb37ad2ed54c004b724f49fd151ee1a06e1a02c70bd215f lines 250003
+current-spinel   sha256 fd7e258a5e15622c3eb37ad2ed54c004b724f49fd151ee1a06e1a02c70bd215f lines 250003 == CRuby
+current-direct   sha256 fd7e258a5e15622c3eb37ad2ed54c004b724f49fd151ee1a06e1a02c70bd215f lines 250003 == CRuby
+versioned-novec  sha256 fd7e258a5e15622c3eb37ad2ed54c004b724f49fd151ee1a06e1a02c70bd215f lines 250003 == CRuby
+versioned        sha256 fd7e258a5e15622c3eb37ad2ed54c004b724f49fd151ee1a06e1a02c70bd215f lines 250003 == CRuby
+versioned-runtime-n sha256 fd7e258a5e15622c3eb37ad2ed54c004b724f49fd151ee1a06e1a02c70bd215f lines 250003 == CRuby
+
+# mm150 (benchmark/bm_matmul.rb unchanged): stdout
+ruby: "-29502222\n-77855452\ndone\n"
+spinel: "-29502222\n-77855452\ndone\n" == CRuby
+current-direct: "-29502222\n-77855452\ndone\n" == CRuby
+versioned: "-29502222\n-77855452\ndone\n" == CRuby

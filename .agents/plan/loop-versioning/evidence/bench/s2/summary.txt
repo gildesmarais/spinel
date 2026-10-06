@@ -1,0 +1,25 @@
+# session s2: 3 warm-up rounds discarded, 40 rounds, variants interleaved in the order below
+# measured 2026-10-05T22:32:25Z .. 2026-10-05T22:32:59Z
+# idle after: BUSY: CPU idle 79.7% < 90%
+
+variant                              n  median_ms     min_ms      q1_ms      q3_ms     iqr_ms     max_ms
+startup (puts 1)                    40       2.67       2.39       2.61       2.77       0.16       3.14
+mm150 current                       40       8.70       8.44       8.63       8.80       0.18       9.28
+mm150 versioned                     40       3.23       2.97       3.17       3.34       0.17       4.00
+mm500 current (spinel)              40     222.24     221.15     221.97     224.08       2.11     238.54
+mm500 current (direct cc)           40     223.34     221.84     222.39     224.70       2.31     239.95
+mm500 versioned -fno-vectorize      40      43.47      42.69      43.12      43.68       0.56      45.74
+mm500 versioned                     40      21.92      21.54      21.79      22.05       0.25      23.58
+dot current (spinel)                40     148.60     147.62     148.30     149.06       0.76     167.91
+dot versioned -fno-vectorize        40      90.12      89.52      89.95      90.90       0.95      93.82
+dot versioned                       40      89.98      89.29      89.72      90.41       0.69      97.68
+
+ratios of medians
+  mm500 current (spinel)           / mm500 versioned -fno-vectorize   = 5.11x
+  mm500 versioned -fno-vectorize   / mm500 versioned                  = 1.98x
+  mm500 current (spinel)           / mm500 versioned                  = 10.14x
+  mm500 current (spinel)           / mm500 current (direct cc)        = 1.00x
+  dot current (spinel)             / dot versioned -fno-vectorize     = 1.65x
+  dot versioned -fno-vectorize     / dot versioned                    = 1.00x
+  mm150 current                    / mm150 versioned                  = 2.69x
+  mm150 current                    / startup (puts 1)                 = 3.26x

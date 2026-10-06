@@ -1,0 +1,76 @@
+# rg -n output for each fact the plan cites (path:line:text)
+
+## g_stmt_prev: set per statement list entry, read by emit_while
+src/codegen_stmt.c:6608:int g_stmt_cur = -1, g_stmt_prev = -1;
+src/codegen_stmt.c:6746:  int prev_stmt = g_stmt_cur == id ? g_stmt_prev : -1;
+src/codegen_stmt.c:13537:      g_stmt_cur = body[k]; g_stmt_prev = k ? body[k - 1] : -1;
+src/codegen_stmt.c:13599:    g_stmt_cur = body[k]; g_stmt_prev = k ? body[k - 1] : -1;
+src/codegen_stmt.c:13615:      g_stmt_cur = body[k]; g_stmt_prev = k ? body[k - 1] : -1;
+
+## g_hc: the enclosing region; a loop inside a cached one is not cached
+src/codegen_stmt.c:6401:static HcRegion *g_hc = NULL;
+src/codegen_stmt.c:6803:  int use_hc = !sv_hc && hc_node_ok(c, pred, 0, &hcr) && hc_node_ok(c, body, 1, &hcr);
+src/codegen_stmt.c:6808:    g_hc = &hcr; b = &hlb;
+src/codegen_stmt.c:6868:    g_hc = sv_hc; b = hob;
+
+## hc entries are created during body emission (hc_entry from the access sites)
+src/codegen_stmt.c:2071:      !hc_array_nilfree(c, vr, hd, hn, sizeof hd))
+src/codegen_stmt.c:6563:static int hc_entry(Compiler *c, int recv, int kind) {
+src/codegen_stmt.c:6682:  if (!hc_array(c, av, comp_ntype(c, av) == TY_FLOAT_ARRAY, hd, hl, hw, sizeof hd)) return 0;
+src/codegen_stmt.c:14845:        hc_array(c, recv, rt == TY_FLOAT_ARRAY, hd, hl, hw, sizeof hd)) {
+src/codegen_stmt.c:15343:      if (hc_array(c, recv, rt == TY_FLOAT_ARRAY, hd, hl, hw, sizeof hd)) {
+src/codegen_call_recv.c:1694:        hc_array(c, recv, rt == TY_FLOAT_ARRAY, hd, hl, hw, sizeof hd)) {
+
+## hc_bounded_index requires `i += 1` (LocalVariableOperatorWriteNode)
+src/codegen_stmt.c:6658:  if (nt_kind(nt, inc) != NK_LocalVariableOperatorWriteNode || !nt_str(nt, inc, "name") ||
+
+## a marked array's stores set no may_nil flag
+src/analyze.c:24372:   this Integer or Float array expression? A marked array's whole-array reads
+src/analyze.c:24373:   scan for the sentinel, as its stores set no flag; an unmarked one asks its
+
+## may_nil field and its readers
+lib/sp_types.h:265:typedef struct{sp_float*data;sp_int len;sp_int cap;sp_int frozen;int may_nil;}sp_FloatArray;
+lib/sp_types.h:266:#define SP_MAY_NIL(a) ((a)->may_nil)
+
+## sp_FloatArray_set: the realloc loop that nests in today's loop when inlined
+lib/sp_array.h:138:static inline void sp_FloatArray_set(sp_FloatArray*a,sp_int i,sp_float v){if(!a)return;if(a->frozen){sp_raise_frozen_array_at(a, SP_BUILTIN_FLT_ARRAY);return;}sp_int orig=i;if(i<0)i+=a->len;if(i<0)sp_raise_cls("IndexError",sp_sprintf("ind...
+
+## -ffp-contract=off
+src/main.c:1019:  s_add(&cmd, "-ffp-contract=off ");
+src/main.c:1020:  bi_put(&bi, "cflag", "-ffp-contract=off");
+
+## polls in the condition of a cached loop
+src/codegen_stmt.c:6828:  int polls_in_cond = use_hc && hcr.bi[0] && !(cpre.p && cpre.p[0]) && (g_uses_threads || g_uses_finalizers);
+
+## decision registry: kinds and the test that holds every kind to a fixture
+Makefile:1121:DECISION_TESTS = test/fixtures/decisions/sites.rb test/fixtures/decisions/nn_infer.rb \
+Makefile:1125:DECISION_KINDS = aon-get case-root fetch-inert gc-save inline-force masgn-root nn-inb nn-read no-alloc \
+
+## codegen emits a node more than once (decision keys may not count)
+src/decide.c:26:   every round, and codegen emits one node into several inline sites and into
+
+## decide_node: the call a new decision kind makes
+src/decide.h:27:static inline int decide_node(const NodeTable *nt, int id, const char *kind, const char *name) {
+
+## hc_recv_text: a receiver's C text is rendered during emission, inside hc_entry
+src/codegen_stmt.c:6508:static int hc_recv_text(Compiler *c, int recv, int kind, char *out, size_t cap) {
+src/codegen_stmt.c:6566:  if (!hc_recv_text(c, recv, kind, t, sizeof t)) return -1;
+
+## the fifth site: the binary Float operator's SP_FLOAT_NIL_CK, gated by cmp_operand_may_be_nil
+src/codegen_call.c:1631:int cmp_operand_may_be_nil(Compiler *c, int id) {
+src/codegen_call.c:13255:      int lin = lft9 == TY_INT && cmp_operand_may_be_nil(c, recv);
+src/codegen_call.c:13256:      int rin = rgt9 == TY_INT && cmp_operand_may_be_nil(c, argv[0]);
+src/codegen_call.c:13257:      int lfn = lft9 == TY_FLOAT && cmp_operand_may_be_nil(c, recv);
+src/codegen_call.c:13258:      int rfn = rgt9 == TY_FLOAT && cmp_operand_may_be_nil(c, argv[0]);
+src/codegen_call.c:13290:      int fguard = lfn || rfn;
+src/codegen_call.c:13304:      if (fguard) buf_printf(b, "; SP_FLOAT_NIL_CK(_t%d, _t%d_r, \"%s\"); _t%d %s _t%d_r; })", tfg, tfg, name, tfg, name, tfg);
+
+## the nil sentinel and its stated non-collision
+lib/sp_types.h:118:/* Nullable float (float?) sentinel: a quiet NaN with a reserved payload.
+lib/sp_types.h:120:   chosen so the canonical NaN (0x7FF8000000000000) and ordinary
+lib/sp_types.h:121:   arithmetic NaNs don't collide; a real Float element with this exact
+lib/sp_types.h:124:#define SP_FLOAT_NIL_BITS ((uint64_t)0x7FF8000000000001ULL)
+
+## bm_spectral_norm: cached loops in the emitted C: 1; its inner loops:
+lv_sum = (lv_sum + ({ sp_float _t6 = sp_eval_a(lv_i, lv_j); sp_float _t7 = sp_FloatArray_get(lv_vector, lv_j); ({ sp_float _t8 = _t6, _t8_r = _t7; SP_FLOAT_NIL_CK(_t8, _t8_r, "*"); _t8 * _t8_r; }); })...
+lv_sum = (lv_sum + ({ sp_float _t14 = sp_eval_a(lv_j, lv_i); sp_float _t15 = sp_FloatArray_get(lv_vector, lv_j); ({ sp_float _t16 = _t14, _t16_r = _t15; SP_FLOAT_NIL_CK(_t16, _t16_r, "*"); _t16 * _t16...

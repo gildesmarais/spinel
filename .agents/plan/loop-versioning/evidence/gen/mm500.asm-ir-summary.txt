@@ -1,0 +1,61 @@
+# _sp_main_body (matgen x2 and matmul inlined): instruction counts and IR loop blocks
+
+## current (gen/mm500.current.c )
+  fmul.2d (vector)           0
+  fadd.2d (vector)           0
+  fmul dN (scalar)           3
+  fadd dN (scalar)           1
+  ldp qN (vector load)       1
+  stp qN (vector store)      2
+  calls to _sp_raise*        1
+  calls to _sp_FloatArray*   1
+  IR blocks named vector.*: (none)
+  IR runtime overlap checks (%found.conflict): 0
+
+## diag-set-ool (gen/mm500.diag-set-ool.c )
+  fmul.2d (vector)           0
+  fadd.2d (vector)           0
+  fmul dN (scalar)           3
+  fadd dN (scalar)           1
+  ldp qN (vector load)       1
+  stp qN (vector store)      2
+  calls to _sp_raise*        0
+  calls to _sp_FloatArray*   0
+  IR blocks named vector.*: (none)
+  IR runtime overlap checks (%found.conflict): 0
+
+## versioned (gen/mm500.versioned.c )
+  fmul.2d (vector)           4
+  fadd.2d (vector)           4
+  fmul dN (scalar)           4
+  fadd dN (scalar)           2
+  ldp qN (vector load)       5
+  stp qN (vector store)      4
+  calls to _sp_raise*        1
+  calls to _sp_FloatArray*   1
+  IR blocks named vector.*: vector.ph, vector.body
+  IR runtime overlap checks (%found.conflict): 1
+
+## versioned-novec (gen/mm500.versioned.c -fno-vectorize -fno-slp-vectorize)
+  fmul.2d (vector)           0
+  fadd.2d (vector)           0
+  fmul dN (scalar)           4
+  fadd dN (scalar)           2
+  ldp qN (vector load)       1
+  stp qN (vector store)      2
+  calls to _sp_raise*        1
+  calls to _sp_FloatArray*   1
+  IR blocks named vector.*: (none)
+  IR runtime overlap checks (%found.conflict): 0
+
+## versioned-runtime-n (gen/mm500.versioned-runtime-n.c )
+  fmul.2d (vector)           4
+  fadd.2d (vector)           4
+  fmul dN (scalar)           4
+  fadd dN (scalar)           2
+  ldp qN (vector load)       5
+  stp qN (vector store)      4
+  calls to _sp_raise*        1
+  calls to _sp_FloatArray*   1
+  IR blocks named vector.*: vector.memcheck, vector.ph, vector.body
+  IR runtime overlap checks (%found.conflict): 1

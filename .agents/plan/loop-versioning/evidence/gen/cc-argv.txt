@@ -1,0 +1,45 @@
+# cc argv spinel passes (captured with tools/ccwrap.sh), one program per block
+
+## mm500 (.agents/plan/loop-versioning/evidence/gen/mm500.rb): compiled C == -S --no-line-map output (#line dropped): true
+-O2 -Wno-all -ffunction-sections -fdata-sections -ffp-contract=off -falign-functions=64 -falign-loops=64 -Werror=incompatible-pointer-types -Werror=int-conversion -ferror-limit=0 -fno-show-column -fno-caret-diagnostics -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib/regexp -DSP_INT_OVERFLOW_MODE_RAISE <emitted .c> /Users/gil/versioned/gildesmarais/spinel/bin/../lib/libspinel_rt.a -lm -Wl,-dead_strip -o /Users/gil/versioned/gildesmarais/spinel/tmp/loop-versioning/mm500.spinel
+prototype versioned: matmul-inner x1
+
+## mm150 (.agents/plan/loop-versioning/evidence/gen/mm150.rb): compiled C == -S --no-line-map output (#line dropped): true
+-O2 -Wno-all -ffunction-sections -fdata-sections -ffp-contract=off -falign-functions=64 -falign-loops=64 -Werror=incompatible-pointer-types -Werror=int-conversion -ferror-limit=0 -fno-show-column -fno-caret-diagnostics -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib/regexp -DSP_INT_OVERFLOW_MODE_RAISE <emitted .c> /Users/gil/versioned/gildesmarais/spinel/bin/../lib/libspinel_rt.a -lm -Wl,-dead_strip -o /Users/gil/versioned/gildesmarais/spinel/tmp/loop-versioning/mm150.spinel
+prototype versioned: matmul-inner x1
+
+## dotbench (.agents/plan/loop-versioning/evidence/gen/dotbench.rb): compiled C == -S --no-line-map output (#line dropped): true
+-O2 -Wno-all -ffunction-sections -fdata-sections -ffp-contract=off -falign-functions=64 -falign-loops=64 -Werror=incompatible-pointer-types -Werror=int-conversion -ferror-limit=0 -fno-show-column -fno-caret-diagnostics -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib/regexp -DSP_INT_OVERFLOW_MODE_RAISE <emitted .c> /Users/gil/versioned/gildesmarais/spinel/bin/../lib/libspinel_rt.a -lm -Wl,-dead_strip -o /Users/gil/versioned/gildesmarais/spinel/tmp/loop-versioning/dotbench.spinel
+prototype versioned: dot x1
+
+## startup (.agents/plan/loop-versioning/evidence/gen/startup.rb): compiled C == -S --no-line-map output (#line dropped): true
+-O2 -Wno-all -ffunction-sections -fdata-sections -ffp-contract=off -falign-functions=64 -falign-loops=64 -Werror=incompatible-pointer-types -Werror=int-conversion -ferror-limit=0 -fno-show-column -fno-caret-diagnostics -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib/regexp -DSP_INT_OVERFLOW_MODE_RAISE <emitted .c> /Users/gil/versioned/gildesmarais/spinel/bin/../lib/libspinel_rt.a -lm -Wl,-dead_strip -o /Users/gil/versioned/gildesmarais/spinel/tmp/loop-versioning/startup.spinel
+prototype versioned: nothing
+
+## dot (.agents/plan/loop-versioning/evidence/fixtures/dot.rb): compiled C == -S --no-line-map output (#line dropped): true
+-O2 -Wno-all -ffunction-sections -fdata-sections -ffp-contract=off -falign-functions=64 -falign-loops=64 -Werror=incompatible-pointer-types -Werror=int-conversion -ferror-limit=0 -fno-show-column -fno-caret-diagnostics -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib/regexp -DSP_INT_OVERFLOW_MODE_RAISE <emitted .c> /Users/gil/versioned/gildesmarais/spinel/bin/../lib/libspinel_rt.a -lm -Wl,-dead_strip -o /Users/gil/versioned/gildesmarais/spinel/tmp/loop-versioning/dot.spinel
+prototype versioned: dot x1
+
+## lv_alias (.agents/plan/loop-versioning/evidence/fixtures/lv_alias.rb): compiled C == -S --no-line-map output (#line dropped): true
+-O2 -Wno-all -ffunction-sections -fdata-sections -ffp-contract=off -falign-functions=64 -falign-loops=64 -Werror=incompatible-pointer-types -Werror=int-conversion -ferror-limit=0 -fno-show-column -fno-caret-diagnostics -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib/regexp -DSP_INT_OVERFLOW_MODE_RAISE <emitted .c> /Users/gil/versioned/gildesmarais/spinel/bin/../lib/libspinel_rt.a -lm -Wl,-dead_strip -o /Users/gil/versioned/gildesmarais/spinel/tmp/loop-versioning/lv_alias.spinel
+prototype versioned: matmul-inner x2, axpy x1
+
+## lv_frozen (.agents/plan/loop-versioning/evidence/fixtures/lv_frozen.rb): compiled C == -S --no-line-map output (#line dropped): true
+-O2 -Wno-all -ffunction-sections -fdata-sections -ffp-contract=off -falign-functions=64 -falign-loops=64 -Werror=incompatible-pointer-types -Werror=int-conversion -ferror-limit=0 -fno-show-column -fno-caret-diagnostics -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib/regexp -DSP_INT_OVERFLOW_MODE_RAISE <emitted .c> /Users/gil/versioned/gildesmarais/spinel/bin/../lib/libspinel_rt.a -lm -Wl,-dead_strip -o /Users/gil/versioned/gildesmarais/spinel/tmp/loop-versioning/lv_frozen.spinel
+prototype versioned: matmul-inner x1
+
+## lv_index_overflow (.agents/plan/loop-versioning/evidence/fixtures/lv_index_overflow.rb): compiled C == -S --no-line-map output (#line dropped): true
+-O2 -Wno-all -ffunction-sections -fdata-sections -ffp-contract=off -falign-functions=64 -falign-loops=64 -Werror=incompatible-pointer-types -Werror=int-conversion -ferror-limit=0 -fno-show-column -fno-caret-diagnostics -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib/regexp -DSP_INT_OVERFLOW_MODE_RAISE <emitted .c> /Users/gil/versioned/gildesmarais/spinel/bin/../lib/libspinel_rt.a -lm -Wl,-dead_strip -o /Users/gil/versioned/gildesmarais/spinel/tmp/loop-versioning/lv_index_overflow.spinel
+prototype versioned: row-axpy x1
+
+## lv_nil_elem (.agents/plan/loop-versioning/evidence/fixtures/lv_nil_elem.rb): compiled C == -S --no-line-map output (#line dropped): true
+-O2 -Wno-all -ffunction-sections -fdata-sections -ffp-contract=off -falign-functions=64 -falign-loops=64 -Werror=incompatible-pointer-types -Werror=int-conversion -ferror-limit=0 -fno-show-column -fno-caret-diagnostics -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib/regexp -DSP_INT_OVERFLOW_MODE_RAISE <emitted .c> /Users/gil/versioned/gildesmarais/spinel/bin/../lib/libspinel_rt.a -lm -Wl,-dead_strip -o /Users/gil/versioned/gildesmarais/spinel/tmp/loop-versioning/lv_nil_elem.spinel
+prototype versioned: matmul-inner x1
+
+## lv_nil_stored (.agents/plan/loop-versioning/evidence/fixtures/lv_nil_stored.rb): compiled C == -S --no-line-map output (#line dropped): true
+-O2 -Wno-all -ffunction-sections -fdata-sections -ffp-contract=off -falign-functions=64 -falign-loops=64 -Werror=incompatible-pointer-types -Werror=int-conversion -ferror-limit=0 -fno-show-column -fno-caret-diagnostics -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib/regexp -DSP_INT_OVERFLOW_MODE_RAISE <emitted .c> /Users/gil/versioned/gildesmarais/spinel/bin/../lib/libspinel_rt.a -lm -Wl,-dead_strip -o /Users/gil/versioned/gildesmarais/spinel/tmp/loop-versioning/lv_nil_stored.spinel
+prototype versioned: nothing
+
+## lv_short_array (.agents/plan/loop-versioning/evidence/fixtures/lv_short_array.rb): compiled C == -S --no-line-map output (#line dropped): true
+-O2 -Wno-all -ffunction-sections -fdata-sections -ffp-contract=off -falign-functions=64 -falign-loops=64 -Werror=incompatible-pointer-types -Werror=int-conversion -ferror-limit=0 -fno-show-column -fno-caret-diagnostics -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib -I/Users/gil/versioned/gildesmarais/spinel/bin/../lib/regexp -DSP_INT_OVERFLOW_MODE_RAISE <emitted .c> /Users/gil/versioned/gildesmarais/spinel/bin/../lib/libspinel_rt.a -lm -Wl,-dead_strip -o /Users/gil/versioned/gildesmarais/spinel/tmp/loop-versioning/lv_short_array.spinel
+prototype versioned: matmul-inner x1

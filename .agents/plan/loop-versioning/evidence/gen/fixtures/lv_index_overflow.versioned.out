@@ -1,0 +1,10 @@
+mul: RangeError: integer overflow in *
+[1.0, 1.0, 1.0, 1.0]
+add: NoMethodError: undefined method '+' for nil
+[1.0, 1.0, 1.0, 1.0]
+[2.0, 2.0, 2.0, 2.0]
+--- stderr
+loop-version: row-axpy slow
+loop-version: row-axpy slow
+loop-version: row-axpy fast
+--- exit 0

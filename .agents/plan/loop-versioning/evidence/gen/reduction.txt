@@ -1,0 +1,62 @@
+# fixtures/dot.rb: printed sum and its bits
+ruby:                "-38906379193.25854\n\"c2221e007772845f\"\n"
+spinel (current):    "-38906379193.25854\n\"c2221e007772845f\"\n"
+versioned (scalar):  "-38906379193.25854\n\"c2221e007772845f\"\n"
+versioned + -ffp-contract=on: "-38906379193.25854\n\"c2221e007772845f\"\n"
+versioned + -fassociative-math -fno-signed-zeros -fno-trapping-math: "-38906379193.258286\n\"c2221e007772843e\"\n"
+
+# the vector body of sp_dot's fast loop in IR (inlined into _sp_main_body)
+
+## versioned (spinel's flags)
+  %72 = fmul <2 x double> %wide.load, %wide.load509
+  %73 = fmul <2 x double> %wide.load506, %wide.load510
+  %74 = fmul <2 x double> %wide.load507, %wide.load511
+  %75 = fmul <2 x double> %wide.load508, %wide.load512
+  %76 = call double @llvm.vector.reduce.fadd.v2f64(double %vec.phi, <2 x double> %72)
+  %77 = call double @llvm.vector.reduce.fadd.v2f64(double %76, <2 x double> %73)
+  %78 = call double @llvm.vector.reduce.fadd.v2f64(double %77, <2 x double> %74)
+  %79 = call double @llvm.vector.reduce.fadd.v2f64(double %78, <2 x double> %75)
+
+## asm around the first fmul.2d (versioned, spinel's flags)
+	.p2align	6
+LBB36_92:                               ; =>This Inner Loop Header: Depth=1
+	ldp	q0, q1, [x8, #-32]
+	ldp	q2, q3, [x8], #64
+	ldp	q4, q5, [x9, #-32]
+	ldp	q6, q7, [x9], #64
+	fmul.2d	v0, v0, v4
+	mov	d4, v0[1]
+	fmul.2d	v1, v1, v5
+	mov	d5, v1[1]
+	fmul.2d	v2, v2, v6
+	mov	d6, v2[1]
+	fmul.2d	v3, v3, v7
+	mov	d7, v3[1]
+	fadd	d0, d8, d0
+	fadd	d0, d0, d4
+	fadd	d0, d0, d1
+	fadd	d0, d0, d5
+	fadd	d0, d0, d2
+	fadd	d0, d0, d6
+	fadd	d0, d0, d3
+	fadd	d8, d0, d7
+	subs	x10, x10, #8
+	b.ne	LBB36_92
+	b	LBB36_58
+LBB36_93:
+
+## versioned + -fassociative-math -fno-signed-zeros -fno-trapping-math
+  %72 = fmul reassoc nsz <2 x double> %wide.load512, %wide.load
+  %73 = fmul reassoc nsz <2 x double> %wide.load513, %wide.load509
+  %74 = fmul reassoc nsz <2 x double> %wide.load514, %wide.load510
+  %75 = fmul reassoc nsz <2 x double> %wide.load515, %wide.load511
+  %76 = fadd reassoc nsz <2 x double> %72, %vec.phi
+  %77 = fadd reassoc nsz <2 x double> %73, %vec.phi506
+  %78 = fadd reassoc nsz <2 x double> %74, %vec.phi507
+  %79 = fadd reassoc nsz <2 x double> %75, %vec.phi508
+# dotbench stdout per binary
+ruby: "-38908921792726.77\n"
+spinel: "-38908921792726.77\n"
+current-direct: "-38908921792726.77\n"
+versioned-novec: "-38908921792726.77\n"
+versioned: "-38908921792726.77\n"

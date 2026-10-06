@@ -1,0 +1,6 @@
+true
+"7ff0000000000001"
+nil
+--- stderr
+can't convert nil into Float (TypeError)
+--- exit 1

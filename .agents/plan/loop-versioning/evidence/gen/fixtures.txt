@@ -1,0 +1,39 @@
+# fixture: CRuby vs spinel today vs the prototype (built with -DLV_TRACE)
+
+## dot
+  ruby == spinel today (stdout, exit): true
+  prototype == spinel today (stdout, exit): true
+  prototype arms taken: dot fast x1
+
+## lv_alias
+  ruby == spinel today (stdout, exit): true
+  prototype == spinel today (stdout, exit): true
+  prototype arms taken: matmul-inner fast x32, axpy fast x4
+
+## lv_frozen
+  ruby == spinel today (stdout, exit): true
+  prototype == spinel today (stdout, exit): true
+  prototype arms taken: matmul-inner slow x1
+
+## lv_index_overflow
+  ruby == spinel today (stdout, exit): false
+  prototype == spinel today (stdout, exit): true
+  prototype arms taken: row-axpy slow x2, row-axpy fast x1
+
+## lv_nil_elem
+  ruby == spinel today (stdout, exit): true
+  prototype == spinel today (stdout, exit): true
+  prototype arms taken: matmul-inner slow x3
+
+## lv_nil_stored
+  ruby == spinel today (stdout, exit): true
+  prototype: no loop versioned
+
+## lv_short_array
+  ruby == spinel today (stdout, exit): true
+  prototype == spinel today (stdout, exit): true
+  prototype arms taken: matmul-inner fast x2, matmul-inner slow x1
+
+## nan_payload
+  ruby == spinel today (stdout, exit): false
+  prototype: no loop versioned

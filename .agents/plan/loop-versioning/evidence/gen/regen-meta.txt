@@ -1,0 +1,5 @@
+HEAD 52c5ccf74734cfdfae73bfe899b8ffdbce84c09a
+src/ lib/ Makefile changes vs HEAD: none
+Apple clang version 21.0.0 (clang-2100.3.34.2)
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [arm64-darwin23]
+spinel: spinel unreleased (52c5ccf74) [apple clang 21.0.0 (cc)]

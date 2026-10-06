@@ -1,0 +1,41 @@
+## date
+Mon Oct  5 19:11:00 UTC 2026
+## git rev-parse HEAD
+52c5ccf74734cfdfae73bfe899b8ffdbce84c09a
+## git status
+On branch master
+Your branch is up to date with 'origin/master'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   docs/README.md
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.agents/
+	docs/internals/loop-versioning.md
+
+no changes added to commit (use "git add" and/or "git commit -a")
+## cc --version
+Apple clang version 21.0.0 (clang-2100.3.34.2)
+Target: arm64-apple-darwin27.0.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+## uname -a
+Darwin g-mba.local 27.0.0 Darwin Kernel Version 27.0.0: Tue Aug 11 21:02:16 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T8112 arm64
+## sysctl -n machdep.cpu.brand_string
+Apple M2
+## hw.ncpu / perflevel0 / perflevel1 / memsize
+8
+4
+4
+17179869184
+## sysctl -n hw.model
+Mac14,2
+## ruby -v
+ruby 4.0.7 (2026-09-15 revision 229531a6cf) +PRISM [arm64-darwin23]
+## sw_vers
+ProductName:		macOS
+ProductVersion:		27.0.1
+BuildVersion:		26A434

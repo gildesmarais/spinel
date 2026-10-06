@@ -1,0 +1,7 @@
+FrozenError
+can't modify frozen Array: [0.0, 0.0, 0.0, 0.0]
+[0.0, 0.0, 0.0, 0.0]
+true
+--- stderr
+loop-version: matmul-inner slow
+--- exit 0

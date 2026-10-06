@@ -1,0 +1,36 @@
+## 2026-10-05T22:33:01Z
+### uptime
+ 0:32  up 11:31, 3 users, load averages: 1.92 1.88 2.19
+### top -l 2 -o cpu -n 10 -s 1 (second sample)
+Processes: 795 total, 2 running, 793 sleeping, 3744 threads 
+2026/10/06 00:33:01
+Load Avg: 2.01, 1.90, 2.20 
+CPU usage: 13.67% user, 6.66% sys, 79.66% idle 
+SharedLibs: 671M resident, 126M data, 184M linkedit.
+MemRegions: 0 total, 0B resident, 309M private, 1799M shared.
+PhysMem: 15G used (2326M wired, 3209M compressor), 426M unused.
+VM: 390T vsize, 57G framework vsize, 94918(0) swapins, 258851(0) swapouts.
+Networks: packets: 3624962/3334M in, 1204851/307M out.
+Disks: 13488142/327G read, 5225622/114G written.
+
+PID    COMMAND          %CPU STATE   
+408    loginwindow      9.0  sleeping
+89274  top              7.1  running 
+1698   OrbStack Helper  7.0  sleeping
+0      kernel_task      6.1  running 
+678    MenuBarAgent     5.6  sleeping
+98886  btm              4.9  sleeping
+1152   Cursor Helper (R 4.7  sleeping
+404    WindowServer     3.1  sleeping
+16664  Cursor Helper (P 3.0  sleeping
+1693   Cursor Helper (P 2.4  sleeping
+### pmset -g batt
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=22741091)	100%; charged; 0:00 remaining present: true
+### pmset -g therm
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded
+### pmset -g (lowpowermode)
+ lowpowermode         0
+### verdict: BUSY: CPU idle 79.7% < 90%

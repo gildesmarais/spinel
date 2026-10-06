@@ -1,0 +1,257 @@
+# cc -Rpass=loop-vectorize -Rpass-missed=loop-vectorize -Rpass-analysis=loop-vectorize -ffp-contract=on on gen/dot.versioned.c
+# remarks located in gen/dot.versioned.c:
+dot.versioned.c:366: remark: loop not vectorized: Control flow cannot be substituted for a select [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:365: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:365: remark: loop not vectorized: instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:365: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+dot.versioned.c:323: remark: loop not vectorized: Cannot vectorize early exit loop with reductions or recurrences [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:323: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+dot.versioned.c:319: remark: vectorized loop (vectorization width: 2, interleaved count: 4) [-Rpass=loop-vectorize]
+dot.versioned.c:14: remark: loop not vectorized: Cannot vectorize early exit loop [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:14: remark: loop not vectorized: instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:14: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized: Control flow cannot be substituted for a select [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized: instruction return type cannot be vectorized [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized: Cannot vectorize early exit loop [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized: instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+dot.versioned.c:12: remark: loop not vectorized: Cannot vectorize uncountable loop [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:12: remark: loop not vectorized: instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:12: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized: Control flow cannot be substituted for a select [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized: instruction return type cannot be vectorized [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized: Cannot vectorize early exit loop [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized: instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+dot.versioned.c:164: remark: loop not vectorized: Cannot vectorize early exit loop with more than one early exit [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:164: remark: loop not vectorized: instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:164: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized: Control flow cannot be substituted for a select [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized: instruction return type cannot be vectorized [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized: Cannot vectorize early exit loop [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized: instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized: Control flow cannot be substituted for a select [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized: instruction return type cannot be vectorized [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized: Cannot vectorize early exit loop [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized: instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+dot.versioned.c:25: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+
+# loop-vectorize optimisation record (kind, function, location, message):
+Analysis	sp_re_mark_globals	bin/../lib/sp_gc.h:	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_re_mark_globals	bin/../lib/sp_gc.h:	loop not vectorized: call instruction cannot be vectorized
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_re_mark_globals	bin/../lib/sp_gc.h:	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_re_mark_globals	bin/../lib/sp_gc.h:	loop not vectorized: call instruction cannot be vectorized
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_re_mark_globals	bin/../lib/sp_gc.h:	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_re_mark_globals	bin/../lib/sp_gc.h:	loop not vectorized: call instruction cannot be vectorized
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: instruction return type cannot be vectorized
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: call instruction cannot be vectorized
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_re_mark_globals	bin/../lib/sp_gc.h:	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: instruction return type cannot be vectorized
+Analysis	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_re_mark_globals	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_poly_length	bin/../lib/spinel_rt.h:	loop not vectorized: Loop contains an unsupported switch
+Analysis	sp_poly_length	bin/../lib/spinel_rt.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_poly_length	bin/../lib/spinel_rt.h:	loop not vectorized: Incorrect number of successors from early exiting block
+Analysis	sp_poly_length	bin/../lib/spinel_rt.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_poly_length	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_poly_hash_pair	bin/../lib/spinel_rt.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_poly_hash_pair	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize early exit loop with more than one early exit
+Analysis	sp_poly_hash_pair	bin/../lib/spinel_rt.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_poly_hash_pair	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_poly_hash_pair	bin/../lib/spinel_rt.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_poly_hash_pair	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize early exit loop with more than one early exit
+Analysis	sp_poly_hash_pair	bin/../lib/spinel_rt.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_poly_hash_pair	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_json_strhash_set	bin/../lib/spinel_rt.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_json_strhash_set	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_json_strhash_set	bin/../lib/spinel_rt.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_json_strhash_set	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_json_strhash_set	bin/../lib/spinel_rt.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_json_strhash_set	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize early exit loop with more than one early exit
+Analysis	sp_json_strhash_set	bin/../lib/spinel_rt.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_json_strhash_set	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_raise_cls	-	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_raise_cls	bin/../lib/spinel_rt.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_raise_cls	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize early exit loop with more than one early exit
+Analysis	sp_raise_cls	bin/../lib/spinel_rt.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_raise_cls	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_handler_stacks_unwind	bin/../lib/spinel_rt.h:	loop not vectorized: loop induction variable could not be identified
+Analysis	sp_handler_stacks_unwind	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize early exit loop with more than one early exit
+Analysis	sp_handler_stacks_unwind	bin/../lib/spinel_rt.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_handler_stacks_unwind	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_handler_stacks_unwind	bin/../lib/spinel_rt.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_handler_stacks_unwind	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize early exit loop with more than one early exit
+Analysis	sp_handler_stacks_unwind	bin/../lib/spinel_rt.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_handler_stacks_unwind	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_handler_stacks_unwind	bin/../lib/spinel_rt.h:	loop not vectorized: loop induction variable could not be identified
+Analysis	sp_handler_stacks_unwind	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize early exit loop with more than one early exit
+Analysis	sp_handler_stacks_unwind	bin/../lib/spinel_rt.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_handler_stacks_unwind	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_exc_print_uncaught	bin/../lib/spinel_rt.h:	loop not vectorized: call instruction cannot be vectorized
+Analysis	sp_exc_print_uncaught	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_exc_print_uncaught	bin/../lib/spinel_rt.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_exc_print_uncaught	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_exc_ctx_save	bin/../lib/spinel_rt.h:	loop not vectorized: call instruction cannot be vectorized
+Analysis	sp_exc_ctx_save	bin/../lib/spinel_rt.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_exc_ctx_save	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_exc_ctx_save	bin/../lib/spinel_rt.h:	loop not vectorized: call instruction cannot be vectorized
+Analysis	sp_exc_ctx_save	bin/../lib/spinel_rt.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_exc_ctx_save	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_exc_ctx_save	bin/../lib/spinel_rt.h:	loop not vectorized: cannot identify array bounds
+Missed	sp_exc_ctx_save	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_exc_ctx_save	bin/../lib/spinel_rt.h:	loop not vectorized: call instruction cannot be vectorized
+Analysis	sp_exc_ctx_save	bin/../lib/spinel_rt.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_exc_ctx_save	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_exc_ctx_load	bin/../lib/spinel_rt.h:	loop not vectorized: call instruction cannot be vectorized
+Analysis	sp_exc_ctx_load	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_exc_ctx_load	bin/../lib/spinel_rt.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_exc_ctx_load	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_exc_ctx_load	bin/../lib/spinel_rt.h:	loop not vectorized: call instruction cannot be vectorized
+Analysis	sp_exc_ctx_load	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_exc_ctx_load	bin/../lib/spinel_rt.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_exc_ctx_load	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_exc_ctx_load	bin/../lib/spinel_rt.h:	loop not vectorized: call instruction cannot be vectorized
+Analysis	sp_exc_ctx_load	bin/../lib/spinel_rt.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_exc_ctx_load	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_exc_ctx_load	bin/../lib/spinel_rt.h:	loop not vectorized: call instruction cannot be vectorized
+Analysis	sp_exc_ctx_load	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_exc_ctx_load	bin/../lib/spinel_rt.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_exc_ctx_load	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_signal_signame	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize early exit loop with more than one early exit
+Analysis	sp_signal_signame	bin/../lib/spinel_rt.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_signal_signame	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_signal_resolve	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize early exit loop with more than one early exit
+Analysis	sp_signal_resolve	bin/../lib/spinel_rt.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_signal_resolve	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_signal_resolve	bin/../lib/spinel_rt.h:	loop not vectorized: call instruction cannot be vectorized
+Analysis	sp_signal_resolve	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize early exit loop with more than one early exit
+Analysis	sp_signal_resolve	bin/../lib/spinel_rt.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_signal_resolve	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	_sp_main_body	-	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	_sp_main_body	-	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	_sp_main_body	-	loop not vectorized: instruction cannot be vectorized
+Missed	_sp_main_body	-	loop not vectorized
+Analysis	_sp_main_body	-	loop not vectorized: Cannot vectorize early exit loop with reductions or recurrences
+Missed	_sp_main_body	-	loop not vectorized
+Passed	_sp_main_body	-	vectorized loop (vectorization width: , interleaved count: )
+Analysis	sp_FloatArray_set	bin/../lib/sp_array.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_FloatArray_set	bin/../lib/sp_array.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_FloatArray_set	bin/../lib/sp_array.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_FloatArray_set	bin/../lib/sp_array.h:	loop not vectorized
+Analysis	sp_PolyArray_scan	bin/../lib/sp_alloc.h:	loop not vectorized: instruction return type cannot be vectorized
+Analysis	sp_PolyArray_scan	bin/../lib/sp_alloc.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_PolyArray_scan	bin/../lib/sp_alloc.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_PolyArray_scan	bin/../lib/sp_alloc.h:	loop not vectorized
+Analysis	sp_int_to_s	bin/../lib/sp_alloc.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_int_to_s	bin/../lib/sp_alloc.h:	loop not vectorized: Cannot vectorize early exit loop with more than one early exit
+Analysis	sp_int_to_s	bin/../lib/sp_alloc.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_int_to_s	bin/../lib/sp_alloc.h:	loop not vectorized
+Analysis	sp_int_to_s	bin/../lib/sp_alloc.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_int_to_s	bin/../lib/sp_alloc.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_int_to_s	bin/../lib/sp_alloc.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_int_to_s	bin/../lib/sp_alloc.h:	loop not vectorized
+Analysis	sp_OpenStruct_inspect	bin/../lib/sp_inspect.h:	loop not vectorized: Cannot vectorize early exit loop
+Missed	sp_OpenStruct_inspect	bin/../lib/sp_inspect.h:	loop not vectorized
+Analysis	sp_OpenStruct_inspect	bin/../lib/spinel_rt.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_OpenStruct_inspect	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize early exit loop with more than one early exit
+Analysis	sp_OpenStruct_inspect	bin/../lib/spinel_rt.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_OpenStruct_inspect	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_str_eq	bin/../lib/sp_str.h:	loop not vectorized: Cannot vectorize potentially faulting early exit loop
+Missed	sp_str_eq	bin/../lib/sp_str.h:	loop not vectorized
+Analysis	sp_str_hash_miss	bin/../lib/sp_str.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_str_hash_miss	bin/../lib/sp_str.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_str_hash_miss	bin/../lib/sp_str.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_str_hash_miss	bin/../lib/sp_str.h:	loop not vectorized
+Analysis	sp_str_hash_miss	bin/../lib/sp_str.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_str_hash_miss	bin/../lib/sp_str.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_str_hash_miss	bin/../lib/sp_str.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_str_hash_miss	bin/../lib/sp_str.h:	loop not vectorized
+Analysis	sp_StrPolyHash_scan	bin/../lib/sp_gc.h:	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_StrPolyHash_scan	bin/../lib/spinel_rt.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_StrPolyHash_scan	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_StrPolyHash_scan	bin/../lib/spinel_rt.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_StrPolyHash_scan	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_sym_intern	bin/../lib/sp_alloc.h:	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_sym_intern	bin/../lib/sp_alloc.h:	loop not vectorized: call instruction cannot be vectorized
+Analysis	sp_sym_intern	-	loop not vectorized: Cannot vectorize early exit loop
+Analysis	sp_sym_intern	-	loop not vectorized: instruction cannot be vectorized
+Missed	sp_sym_intern	-	loop not vectorized
+Analysis	sp_StrArray_scan	bin/../lib/sp_gc.h:	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_StrArray_scan	bin/../lib/sp_gc.h:	loop not vectorized: call instruction cannot be vectorized
+Analysis	sp_StrArray_scan	bin/../lib/sp_array.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_StrArray_scan	bin/../lib/sp_array.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_StrArray_scan	bin/../lib/sp_array.h:	loop not vectorized
+Analysis	sp_SymPolyHash_scan	bin/../lib/spinel_rt.h:	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_SymPolyHash_scan	bin/../lib/spinel_rt.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_SymPolyHash_scan	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_SymPolyHash_scan	bin/../lib/spinel_rt.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_SymPolyHash_scan	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_PolyPolyHash_scan	bin/../lib/spinel_rt.h:	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_PolyPolyHash_scan	bin/../lib/spinel_rt.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_PolyPolyHash_scan	bin/../lib/spinel_rt.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_PolyPolyHash_scan	bin/../lib/spinel_rt.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_PolyPolyHash_scan	bin/../lib/spinel_rt.h:	loop not vectorized
+Analysis	sp_PtrArray_gc_scan	bin/../lib/sp_array.h:	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_PtrArray_gc_scan	bin/../lib/sp_array.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_PtrArray_gc_scan	bin/../lib/sp_array.h:	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_PtrArray_gc_scan	bin/../lib/sp_array.h:	loop not vectorized: instruction cannot be vectorized
+Missed	sp_PtrArray_gc_scan	bin/../lib/sp_array.h:	loop not vectorized
+Analysis	sp_class_kind_of_name	-	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_class_kind_of_name	-	loop not vectorized: instruction return type cannot be vectorized
+Analysis	sp_class_kind_of_name	-	loop not vectorized: Cannot vectorize early exit loop
+Analysis	sp_class_kind_of_name	-	loop not vectorized: instruction cannot be vectorized
+Missed	sp_class_kind_of_name	-	loop not vectorized
+Analysis	sp_mark_user_globals	bin/../lib/sp_gc.h:	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_mark_user_globals	bin/../lib/sp_gc.h:	loop not vectorized: call instruction cannot be vectorized
+Analysis	sp_mark_user_globals	-	loop not vectorized: Cannot vectorize uncountable loop
+Analysis	sp_mark_user_globals	-	loop not vectorized: instruction cannot be vectorized
+Missed	sp_mark_user_globals	-	loop not vectorized
+Analysis	sp_class_le_mod	-	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_class_le_mod	-	loop not vectorized: instruction return type cannot be vectorized
+Analysis	sp_class_le_mod	-	loop not vectorized: Cannot vectorize early exit loop
+Analysis	sp_class_le_mod	-	loop not vectorized: instruction cannot be vectorized
+Missed	sp_class_le_mod	-	loop not vectorized
+Analysis	sp_class_le_mod	bin/../lib/sp_gc.h:	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_class_le_mod	bin/../lib/sp_gc.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_class_le_mod	bin/../lib/sp_gc.h:	loop not vectorized: Cannot vectorize early exit loop with more than one early exit
+Analysis	sp_class_le_mod	bin/../lib/sp_gc.h:	loop not vectorized: could not determine number of loop iterations
+Missed	sp_class_le_mod	bin/../lib/sp_gc.h:	loop not vectorized
+Analysis	sp_class_le_mod	bin/../lib/spinel_rt.h:	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_class_le_mod	bin/../lib/sp_alloc.h:	loop not vectorized: value that could not be identified as reduction is used outside the loop
+Analysis	sp_class_le_mod	-	loop not vectorized: Cannot vectorize early exit loop with more than one early exit
+Analysis	sp_class_le_mod	-	loop not vectorized: instruction cannot be vectorized
+Missed	sp_class_le_mod	-	loop not vectorized
+Analysis	sp_class_is_ancestor	-	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_class_is_ancestor	-	loop not vectorized: instruction return type cannot be vectorized
+Analysis	sp_class_is_ancestor	-	loop not vectorized: Cannot vectorize early exit loop
+Analysis	sp_class_is_ancestor	-	loop not vectorized: instruction cannot be vectorized
+Missed	sp_class_is_ancestor	-	loop not vectorized
+Analysis	sp_builtin_superclass	-	loop not vectorized: Control flow cannot be substituted for a select
+Analysis	sp_builtin_superclass	-	loop not vectorized: instruction return type cannot be vectorized
+Analysis	sp_builtin_superclass	-	loop not vectorized: Cannot vectorize early exit loop
+Analysis	sp_builtin_superclass	-	loop not vectorized: instruction cannot be vectorized
+Missed	sp_builtin_superclass	-	loop not vectorized
