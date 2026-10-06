@@ -878,7 +878,7 @@ void cg_memo_put(CgMemo *m, const char *key, int tag, int val);
 const char *re_lit_src(Compiler *c, int nid);
 void emit_interp(Compiler *c, int id, Buf *b);
 int emit_regex_pat_to_buf(Compiler *c, int nid, Buf *b);
-int nameset_has(NameSet *s, const char *nm);
+int nameset_has(const NameSet *s, const char *nm);
 void nameset_add(NameSet *s, const char *nm);
 /* Emit the C lvalue for local `name` in the current emission context: a
    captured var inside a proc body -> the cell in _cap; a cell local in its

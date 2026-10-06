@@ -1444,7 +1444,7 @@ int emit_regex_pat_to_buf(Compiler *c, int nid, Buf *b) {
   }
   return 0;
 }
-int nameset_has(NameSet *s, const char *nm) {
+int nameset_has(const NameSet *s, const char *nm) {
   if (!nm) return 0;
   for (int i = 0; i < s->n; i++) if (sp_streq(s->v[i], nm)) return 1;
   return 0;
