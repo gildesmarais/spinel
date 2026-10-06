@@ -1,0 +1,13 @@
+nil_n true: [0.0, 2.0, 4.0, 6.0]
+nil_ofs true: [2.0, 4.0, 6.0, 8.0]
+nil_ofs_folded true: [0.0, 2.0, 4.0, 6.0]
+nil_f true: [0.0, 2.0, 4.0, 6.0]
+nil_k true: [1, 1, 1, 0]
+nil_n false: ArgumentError: comparison of Integer with nil failed
+nil_ofs false: NoMethodError: undefined method '+' for nil
+nil_ofs_folded false: NoMethodError: undefined method '*' for nil
+nil_f false: TypeError: nil can't be coerced into Float
+nil_k false: ArgumentError: comparison of Integer with nil failed
+neg_ofs -1: [14.0, 0.0, 2.0, 4.0]
+neg_ofs -6: [4.0, 6.0, 8.0, 10.0]
+neg_ofs 5: NoMethodError: undefined method '*' for nil
