@@ -1,0 +1,37 @@
+## settle-check 2026-10-06T14:57:36+0200
+### uptime
+14:57  up 1 day,  1:56, 4 users, load averages: 40.20 95.99 90.27
+### top -l 2 -o cpu -n 10 -s 1 (second sample)
+Processes: 792 total, 2 running, 790 sleeping, 4504 threads 
+2026/10/06 14:57:36
+Load Avg: 37.22, 94.45, 89.76 
+CPU usage: 12.88% user, 8.7% sys, 79.3% idle 
+SharedLibs: 289M resident, 65M data, 61M linkedit.
+MemRegions: 0 total, 0B resident, 153M private, 1105M shared.
+PhysMem: 15G used (2279M wired, 6703M compressor), 169M unused.
+VM: 427T vsize, 57G framework vsize, 964134(0) swapins, 1326391(0) swapouts.
+Networks: packets: 7790006/5286M in, 4085134/1599M out.
+Disks: 31946697/749G read, 13414211/242G written.
+
+PID    COMMAND          %CPU STATE   
+1698   OrbStack Helper  10.9 sleeping
+29742  top              7.8  running 
+0      kernel_task      5.9  running 
+1693   Cursor Helper (P 5.0  sleeping
+1078   diskimagesiod    3.4  sleeping
+43930  btm              3.2  sleeping
+1152   Cursor Helper (R 2.9  sleeping
+336    fseventsd        2.7  sleeping
+502    airportd         2.7  sleeping
+5113   Cursor Helper (P 2.3  sleeping
+### pmset -g batt
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=22741091)	100%; charged; 0:00 remaining present: true
+### pmset -g therm
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded
+### pmset -g (lowpowermode)
+ lowpowermode         0
+### CPU idle 79.3%
+### verdict: OK

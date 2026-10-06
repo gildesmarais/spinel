@@ -1,0 +1,138 @@
+# make gate on 4ca5b952a58ae02702cea9813d2d2558705951f4 in /Users/gil/versioned/gildesmarais/spinel
+# status: 0 changed paths
+# start 2026-10-06T14:28:36+0200
+make[1]: `build/spinel-timeout' is up to date.
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -Werror=return-type -Isrc -Ibuild/csrc -c src/main.c -o build/csrc/main.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off build/csrc/node_table.o build/csrc/types.o build/csrc/compiler.o build/csrc/ffi_spec.o build/csrc/analyze.o build/csrc/analyze_util.o build/csrc/analyze_infer.o build/csrc/analyze_infer_recv.o build/csrc/analyze_scope.o build/csrc/analyze_pass.o build/csrc/analyze_desugar.o build/csrc/analyze_nil.o build/csrc/repr.o build/csrc/codegen.o build/csrc/codegen_util.o build/csrc/ty_traits_check.o build/csrc/codegen_fold.o build/csrc/codegen_call.o build/csrc/codegen_call_poly.o build/csrc/codegen_call_method.o build/csrc/codegen_call_io.o build/csrc/codegen_call_kernel.o build/csrc/codegen_call_exception.o build/csrc/codegen_call_module.o build/csrc/codegen_call_string.o build/csrc/codegen_call_class.o build/csrc/codegen_call_operator.o build/csrc/codegen_call_object.o build/csrc/codegen_ops.o build/csrc/codegen_call_concurrency.o build/csrc/codegen_call_numeric.o build/csrc/codegen_call_hash.o build/csrc/codegen_call_array.o build/csrc/codegen_view.o build/csrc/builtin_ops.o build/csrc/builtin_names.o build/csrc/codegen_call_recv.o build/csrc/codegen_iter.o build/csrc/call_plan.o build/csrc/codegen_poly_plan.o build/csrc/codegen_expr.o build/csrc/codegen_stmt.o build/csrc/csplit.o build/csrc/main.o build/csrc/decide.o build/csrc/sp_parse_lib.o build/csrc/re_lit_check.o build/regexp/re_compile.o build/regexp/re_exec.o build/regexp/re_utf8.o build/regexp/unicase.o build/regexp/re_spinel.o build/libprism.a -lm  -o bin/spinel
+bin/spinel tools/doctor.rb -o bin/spinel-doctor
+bin/spinel tools/reduce.rb -o bin/spinel-reduce
+bin/spinel tools/flatten.rb -o bin/spinel-flatten
+bin/spinel -I build tools/spin.rb -o bin/spin
+bin/spinel tools/diff.rb -o bin/spinel-diff
+bin/spinel tools/bisect.rb -o bin/spinel-bisect
+tools/flatten.rb -> bin/spinel-flatten
+tools/reduce.rb -> bin/spinel-reduce
+tools/doctor.rb -> bin/spinel-doctor
+tools/diff.rb -> bin/spinel-diff
+tools/bisect.rb -> bin/spinel-bisect
+tools/spin.rb -> bin/spin
+build/spinel_rbs_extract -> bin/spinel_rbs_extract
+Cloning into 'build/rubyspec'...
+Cloning into 'build/optcarrot'...
+make[3]: warning: -jN forced in submake: disabling jobserver mode.
+rbs-seed-test: pass
+RBS extractor tests: 15 pass
+Wrote build/optcarrot-single.c
+check-stores-test: pass
+link-names-test: pass
+reject-test: pass
+backtrace-test: pass
+re-lit-test: pass
+extracted 2679 examples into build/rubyspec-ex-language
+defer-refusals-test: pass
+Benchmarks: 64 pass, 0 fail, 0 error, 0 skip
+cli-opts-test: pass
+bisect-test: pass
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/node_table.c -o build/csrc-work/node_table.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/types.c -o build/csrc-work/types.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/compiler.c -o build/csrc-work/compiler.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/ffi_spec.c -o build/csrc-work/ffi_spec.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/analyze.c -o build/csrc-work/analyze.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/analyze_util.c -o build/csrc-work/analyze_util.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/analyze_infer.c -o build/csrc-work/analyze_infer.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/analyze_infer_recv.c -o build/csrc-work/analyze_infer_recv.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/analyze_scope.c -o build/csrc-work/analyze_scope.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/analyze_pass.c -o build/csrc-work/analyze_pass.o
+checksum: 59662
+fps: 244.8  (median of 5; 118.3-575.0, spread 186.5%)
+Optcarrot: OK
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/analyze_desugar.c -o build/csrc-work/analyze_desugar.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/analyze_nil.c -o build/csrc-work/analyze_nil.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/repr.c -o build/csrc-work/repr.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen.c -o build/csrc-work/codegen.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_util.c -o build/csrc-work/codegen_util.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/ty_traits_check.c -o build/csrc-work/ty_traits_check.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_fold.c -o build/csrc-work/codegen_fold.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_call.c -o build/csrc-work/codegen_call.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_call_poly.c -o build/csrc-work/codegen_call_poly.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_call_method.c -o build/csrc-work/codegen_call_method.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_call_io.c -o build/csrc-work/codegen_call_io.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_call_kernel.c -o build/csrc-work/codegen_call_kernel.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_call_exception.c -o build/csrc-work/codegen_call_exception.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_call_module.c -o build/csrc-work/codegen_call_module.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_call_string.c -o build/csrc-work/codegen_call_string.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_call_class.c -o build/csrc-work/codegen_call_class.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_call_operator.c -o build/csrc-work/codegen_call_operator.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_call_object.c -o build/csrc-work/codegen_call_object.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_ops.c -o build/csrc-work/codegen_ops.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_call_concurrency.c -o build/csrc-work/codegen_call_concurrency.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_call_numeric.c -o build/csrc-work/codegen_call_numeric.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_call_hash.c -o build/csrc-work/codegen_call_hash.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_call_array.c -o build/csrc-work/codegen_call_array.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_view.c -o build/csrc-work/codegen_view.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/builtin_ops.c -o build/csrc-work/builtin_ops.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/builtin_names.c -o build/csrc-work/builtin_names.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_call_recv.c -o build/csrc-work/codegen_call_recv.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_iter.c -o build/csrc-work/codegen_iter.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/call_plan.c -o build/csrc-work/call_plan.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_poly_plan.c -o build/csrc-work/codegen_poly_plan.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_expr.c -o build/csrc-work/codegen_expr.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/codegen_stmt.c -o build/csrc-work/codegen_stmt.o
+src/codegen_stmt.c:6758:57: warning: passing 'const NameSet *' to parameter of type 'NameSet *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 6758 |       return nm && !sp_streq(nm, r->jn) && !nameset_has(&r->wl, nm);
+      |                                                         ^~~~~~
+src/codegen_internal.h:881:26: note: passing argument to parameter 's' here
+  881 | int nameset_has(NameSet *s, const char *nm);
+      |                          ^
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/csplit.c -o build/csrc-work/csplit.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/main.c -o build/csrc-work/main.o
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off -O1 -DSP_WORK_COUNT -Isrc -Ibuild/csrc -c src/decide.c -o build/csrc-work/decide.o
+refusals: pass (426 records)
+collect-errors-test: pass
+gc-threshold-test: pass
+gc-phases-test: pass
+gc-obj-budget-test: pass
+byref-capture-test: pass
+alloc-report-test: pass
+check-traits: 52 kinds, 0 cells differ
+check-traits: 52 kinds, 0 cells differ
+check-bop-arity: 494 Method#arity rows checked, 0 against their counts
+check-bop-arity: 903 rows checked, 0 outside CRuby's counts
+gc-str-major-test: pass
+ext-test: pass
+diff-test: pass
+1 warning generated.
+gc-locality-test: pass
+gc-stress-test: pass
+thread-puts-test: pass
+cc -O2 -Wno-all -Wno-unknown-warning-option -Wno-alloc-size-larger-than -Wno-format-truncation -ffp-contract=off build/csrc-work/node_table.o build/csrc-work/types.o build/csrc-work/compiler.o build/csrc-work/ffi_spec.o build/csrc-work/analyze.o build/csrc-work/analyze_util.o build/csrc-work/analyze_infer.o build/csrc-work/analyze_infer_recv.o build/csrc-work/analyze_scope.o build/csrc-work/analyze_pass.o build/csrc-work/analyze_desugar.o build/csrc-work/analyze_nil.o build/csrc-work/repr.o build/csrc-work/codegen.o build/csrc-work/codegen_util.o build/csrc-work/ty_traits_check.o build/csrc-work/codegen_fold.o build/csrc-work/codegen_call.o build/csrc-work/codegen_call_poly.o build/csrc-work/codegen_call_method.o build/csrc-work/codegen_call_io.o build/csrc-work/codegen_call_kernel.o build/csrc-work/codegen_call_exception.o build/csrc-work/codegen_call_module.o build/csrc-work/codegen_call_string.o build/csrc-work/codegen_call_class.o build/csrc-work/codegen_call_operator.o build/csrc-work/codegen_call_object.o build/csrc-work/codegen_ops.o build/csrc-work/codegen_call_concurrency.o build/csrc-work/codegen_call_numeric.o build/csrc-work/codegen_call_hash.o build/csrc-work/codegen_call_array.o build/csrc-work/codegen_view.o build/csrc-work/builtin_ops.o build/csrc-work/builtin_names.o build/csrc-work/codegen_call_recv.o build/csrc-work/codegen_iter.o build/csrc-work/call_plan.o build/csrc-work/codegen_poly_plan.o build/csrc-work/codegen_expr.o build/csrc-work/codegen_stmt.o build/csrc-work/csplit.o build/csrc-work/main.o build/csrc-work/decide.o build/csrc/sp_parse_lib.o build/csrc/re_lit_check.o build/regexp/re_compile.o build/regexp/re_exec.o build/regexp/re_utf8.o build/regexp/unicase.o build/regexp/re_spinel.o build/libprism.a -lm  -o build/spinel-work
+ext-cruby-test: pass
+loop-version-test: pass
+threaded-render-test: pass
+infer-test: pass
+scale-test: instance_eval forwarding work at 2x the wrappers is 1.70x (limit 2.50)
+scale-test: work at 4x the program is 4.73x (linear 4.00, limit 5.20)
+scale-test: work at 4x the program, compiled to C, is 6.07x (limit 6.90)
+scale-test: call-shape work at 4x the units, compiled to C, is 4.22x (linear 4.00, limit 4.50)
+spin-e2e: ALL GREEN
+rubyspec-gate[language]: all     1025 expected-PASS examples still pass
+extracted 1213 examples into build/rubyspec-ex-core-array
+rubyspec-gate[core/array]: all      665 expected-PASS examples still pass
+extracted 1823 examples into build/rubyspec-ex-core-string
+rubyspec-gate[core/string]: all      842 expected-PASS examples still pass
+extracted 457 examples into build/rubyspec-ex-core-hash
+rubyspec-gate[core/hash]: all      261 expected-PASS examples still pass
+extracted 522 examples into build/rubyspec-ex-core-integer
+rubyspec-gate[core/integer]: all      213 expected-PASS examples still pass
+extracted 427 examples into build/rubyspec-ex-core-range
+rubyspec-gate[core/range]: all      200 expected-PASS examples still pass
+gc-minor-test: pass
+decisions-test: pass
+Tests:     6052 pass,        0 fail,        0 error
+gate: stamp for tree b86075cc3bcd on master 52c5ccf74734; git commit --amend --no-edit adds the Gate: trailer
+gate: ALL GREEN
+real 1700.11
+user 8541.91
+sys 1732.84
+# exit 0
+# end 2026-10-06T14:56:56+0200

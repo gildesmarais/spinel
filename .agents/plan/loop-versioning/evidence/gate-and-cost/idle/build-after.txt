@@ -1,0 +1,37 @@
+## build-after 2026-10-06T16:17:19+0200
+### uptime
+16:17  up 1 day,  3:16, 4 users, load averages: 66.49 28.76 42.10
+### top -l 2 -o cpu -n 10 -s 1 (second sample)
+Processes: 882 total, 6 running, 876 sleeping, 4791 threads 
+2026/10/06 16:17:19
+Load Avg: 66.49, 28.76, 42.10 
+CPU usage: 32.35% user, 23.64% sys, 44.0% idle 
+SharedLibs: 327M resident, 72M data, 62M linkedit.
+MemRegions: 0 total, 0B resident, 154M private, 1282M shared.
+PhysMem: 15G used (2784M wired, 7243M compressor), 146M unused.
+VM: 467T vsize, 57G framework vsize, 973524(8) swapins, 1345099(0) swapouts.
+Networks: packets: 7879951/5314M in, 4151034/1621M out.
+Disks: 32368956/765G read, 13535590/245G written.
+
+PID    COMMAND          %CPU STATE   
+7125   PosterBoard      73.9 running 
+56411  pmset            58.3 running 
+336    fseventsd        30.4 sleeping
+6968   diagnosticd      26.4 running 
+0      kernel_task      21.2 running 
+99743  diagnosticd      15.2 sleeping
+1008   Finder           7.4  sleeping
+6921   runningboardd    6.5  sleeping
+404    WindowServer     6.4  sleeping
+1698   OrbStack Helper  5.9  sleeping
+### pmset -g batt
+Now drawing from 'Battery Power'
+ -InternalBattery-0 (id=22741091)	100%; discharging; (no estimate) present: true
+### pmset -g therm
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded
+### pmset -g (lowpowermode)
+ lowpowermode         0
+### CPU idle 44.0%
+### verdict: ABORT: not on AC power

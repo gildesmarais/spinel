@@ -654,6 +654,19 @@ commit_message: "perf(codegen): chunk versioned loops between safepoint and fina
 decisions: "Re-test the guard after each poll and fall to today's loop from the current j, rejected disabling versioning in threaded builds (loses the kernels that run in worker threads) and rejected one poll per element (keeps an exit in the vector body)."
 ```
 
+## Gate and cost (after Phase 04)
+
+`make gate` on `4ca5b952a`: **exit 0, ALL GREEN** (28 min 20 s). Every leg
+passed: test 6052/0/0, bench 64/64, optcarrot checksum, rubyspec 3,206
+expected-PASS, and every property leg. Against base `52c5ccf74`, HEAD versions 4 loops in 3 of
+the 64 benchmarks (`bm_matmul` 2, `bm_spectral_norm` 1, `bm_huffman` 1) and
+none in optcarrot. The 64 benchmarks' C grows +0.26%, with `bm_matmul` the
+worst at +11.2% of its C. No stripped binary grows, and 62 of the 65
+binaries are byte-identical. No program's compile time moves outside the
+noise. The run-time comparison has not been made: the machine was on battery
+from 15:10:50, and the command to resume it is in the evidence file. See
+[`evidence/gate-and-cost.md`](loop-versioning/evidence/gate-and-cost.md).
+
 ## Risks, non-goals, follow-ups
 
 - **The machine.** Benchmarks ran on a fanless MacBook Air M2 that its owner
