@@ -154,14 +154,20 @@ Emitted once, after `_SP_HCR()` has filled the cache:
 - every Float array the loop reads is nil-free at run time (`SP_MAY_NIL`, the
   same fact `hc_array_nilfree` reads); an Int array likewise when its element
   can be `SP_INT_NIL`;
-- every Float local the body reads that an analysis marks nullable is not nil
-  (`!sp_float_is_nil`);
+- every Integer or Float local the body reads that an analysis marks nullable
+  is not nil (`!= SP_INT_NIL`, `!sp_float_is_nil`);
+- every local an offset `B` is built from is not nil (`!= SP_INT_NIL`): the
+  range test alone would let `o * 0` through with `o` nil, as
+  `SP_INT_NIL * 0` is 0;
 - for each distinct offset `B` and its array `x`: `B` is computed with
   `__builtin_mul_overflow` / `__builtin_add_overflow`, and
   `B >= 0 && B + N <= len(x)` without overflow; with `j` starting at a
   literal `>= 0` and staying below `N`, every index is in range and no index
   arithmetic in the loop can overflow;
-- `N >= 0`.
+- `N >= 0`, which also turns away a nil `N`: `SP_INT_NIL` is the most
+  negative `sp_int`.
+
+`test/loop_version_guard_scalars.rb` pins each of these scalar tests.
 
 Static proofs are not an option here: in `matmul(a, b, n)` the lengths of `a`
 and `b` are only known at run time. The guard is the proof.
@@ -289,6 +295,17 @@ change. The shape — check-free chunks, the poll and refresh, the re-test and
 its `break`, today's loop after — is pinned by `loop-version-test`'s
 assertion on the emitted C, which also runs the fixture on one worker
 (`SPINEL_WORKERS=1`), where the other thread gets in only at a poll.
+
+`test/loop_version_chunk_handoff.rb` is what proves it. Its change is a
+finalizer that shrinks the array the loop reads, or freezes the one it
+writes, and it lands at the first poll between chunks by construction: the
+finalizer's object dies before the loop, a 32 MB allocation just ahead of
+the loop sets off a collection that leaves the finalizer pending, nothing
+polls from there to the loop, and the fast loop polls only between chunks.
+So the re-test fails at `j` = 4096 and today's loop raises where CRuby does;
+a fast loop that ran on past that poll prints `finished` instead. It runs on
+1, 2 and 8 workers, and not under `SPINEL_GC_STRESS`, where the finalizer's
+object outlives that collection.
 
 ### Bisecting it
 
