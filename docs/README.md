@@ -63,5 +63,5 @@ How the compiler is built and where it is going. Not needed to *use* Spinel.
   document, not a user guarantee (the user contract is in [thread.md](thread.md)).
 - **[internals/loop-versioning.md](internals/loop-versioning.md)** -- running
   typed-array `while` loops as plain C pointer loops behind one entry guard,
-  so the host compiler vectorizes them. A working document; single-threaded
-  builds only so far.
+  so the host compiler vectorizes them. A working document; in threaded and
+  finalizer builds the fast loop runs in chunks between polls.

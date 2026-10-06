@@ -2,9 +2,10 @@
 
 > A **working document**, not a user guarantee. It describes how numeric
 > `while` loops over `IntArray` / `FloatArray` run as plain C pointer loops,
-> which the host compiler then vectorizes on its own. Phase 1 below is
-> implemented: loops in builds without threads or finalizers. The chunked
-> form for threaded and finalizer builds (phase 2) is not. The phased
+> which the host compiler then vectorizes on its own. Phases 1 and 2 below
+> are implemented: the fast loop in builds without threads or finalizers,
+> and its chunked form, with the polls between chunks, in builds with them.
+> The phased
 > implementation plan and the evidence behind every number and claim below
 > are in
 > [`.agents/plan/loop-versioning.md`](../../.agents/plan/loop-versioning.md)
@@ -247,13 +248,47 @@ versioning does not reach them without inlining.)
 ### Polls
 
 A cached loop with `g_uses_threads` or `g_uses_finalizers` polls at the top of
-its condition. The fast loop must not drop that: it runs in fixed-size chunks
-(4096 iterations, to be tuned) with the same polls between chunks, and
-refreshes the cache and re-checks the guard after a poll, since another
-thread or a finalizer may have shrunk or frozen an array. A failed re-check
-falls through to today's loop from the current `j`, which is still correct:
-the iterations already done are exactly the ones today's loop would have
-done.
+its condition. The fast loop must not drop that: in such a build it runs in
+chunks of `HC_CHUNK` passes (4096, not tuned yet) with today's polls between
+them. Each chunk's inner loop is as check-free as the single-threaded fast
+loop. Between chunks, a poll that fires also refreshes the cache
+(`_SP_HCRn()`), since another thread or a finalizer may have shrunk, frozen or
+nil-filled an array; then the whole entry guard runs again on the current
+headers. When it fails, the arm stops, and today's loop, which follows the
+arm instead of sitting in an `else`, goes on from the current `j`. That is
+still correct: the iterations already done are exactly the ones today's loop
+would have done. When the arm finishes the range, today's loop's condition
+fails at once. What the fixture's `double_into` emits in a threaded build:
+
+```c
+if (_lvg1) {
+  for (;;) {
+    sp_int _lvc1 = _lvn1 - lv_j > 4096 ? lv_j + 4096 : _lvn1;
+    for (; lv_j < _lvc1; lv_j++) {
+      { sp_float _t5 = (_hcd1_1[lv_j] * 2.0); _hcd1_0[lv_j] = _t5; }
+    }
+    if (lv_j >= _lvn1) break;
+    if (SP_UNLIKELY(SP_SAFEPOINT_POLL())) sp_safepoint(), _SP_HCR1();
+    { _lvg1 = 1; _lvn1 = lv_n; /* the entry guard again */ }
+    if (!_lvg1) break;
+  }
+}
+while ((lv_j < lv_n)) { /* today's text */ }
+```
+
+A finalizer build adds its own poll (`sp_fin_pending_flag`, then
+`sp_fin_run_pending()` and the refresh) beside the safepoint poll.
+
+`test/loop_version_thread_shrink.rb` has a second thread shrink one array and
+freeze another while versioned loops run over them pass after pass. Where in
+a pass the change lands is the scheduler's choice, so the fixture checks only
+what every interleaving has in common: no crash, what the passes wrote is a
+correct prefix of the answer, and errors come only after the change has
+landed. It does not prove that the re-test after a poll is what catches the
+change. The shape — check-free chunks, the poll and refresh, the re-test and
+its `break`, today's loop after — is pinned by `loop-version-test`'s
+assertion on the emitted C, which also runs the fixture on one worker
+(`SPINEL_WORKERS=1`), where the other thread gets in only at a poll.
 
 ### Bisecting it
 
@@ -303,8 +338,9 @@ can deny it loop by loop, and a denied loop is emitted exactly as today.
    fixtures pinning today's behaviour where the guard must fail (a nil
    element, a short array, a frozen array, one array under two names, an
    `i*n` that overflows under `--int-overflow=raise`).
-2. **Chunked fast loop** for threaded and finalizer builds: the poll rules
-   above.
+2. **Chunked fast loop** for threaded and finalizer builds (implemented): the
+   poll rules above, with the thread-shrink fixture and an emitted-C
+   assertion on the chunk's shape.
 3. **Measure, then decide on more**: record which loops qualify
    (`spinel-doctor`'s `advice` leg is the natural place to say why one did
    not), and widen the index shapes only where a measured kernel needs it.
