@@ -383,7 +383,8 @@ Phase 02 `bin/spinel` (cc argv identical to the current builds'), and
 `bench.rb run r1 real` / `run r2 real` timed them interleaved with the ten
 binaries above (13 variants, 3 warm-up rounds, 40 rounds;
 `bench/r1/`, `bench/r2/`). The gate before them: Phase 02's `make test`
-(6051 pass, 0 fail, 0 error, exit 0; `bin/spinel` relinked 08:38:38 local
+([`phase02-make-test.log`](loop-versioning/evidence/phase02-make-test.log):
+6051 pass, 0 fail, 0 error, exit 0; `bin/spinel` relinked 08:38:38 local
 after the last source edit, results 08:39:18–08:48:11, log closed 08:50:12;
 the tree unchanged since `f343f3b8c`). It took about 12 minutes against the
 base run's 33 because the result cache (`tools/result_cache.sh`) skips the
@@ -635,6 +636,14 @@ after a poll the region refreshes (`_SP_HCRn()`) and re-tests the guard for the
 remaining range, falling to today's loop from the current `j` when it fails.
 Fixture: a second thread that shrinks or freezes the array while the loop
 runs. Test flight height: the existing threaded legs plus the new fixture.
+
+Gate run on the tree committed as `31781f950`: `make test`, **exit 0,
+`Tests: 6052 pass, 0 fail, 0 error`**, every C-side leg `pass`, among them
+`loop-version-test` and `threaded-render-test`, 13:00:59–13:05:56 local
+([`phase04-make-test.log`](loop-versioning/evidence/phase04-make-test.log)).
+It took about 5 minutes because the result cache (`tools/result_cache.sh`)
+skips the cc and the run of a test whose generated C did not change; spinel
+still runs on every test.
 
 ```yaml
 target_files: [src/codegen_stmt.c, Makefile, test/loop_version_thread_shrink.rb, test/loop_version_thread_shrink.rb.expected]
