@@ -1946,8 +1946,14 @@ byref-capture-test: $(SPINEL) $(RBS_EXTRACT_BIN) $(SP_RT_LIB) $(SPINEL_TIMEOUT)
 # Each versioned loop's fast arm, the `if (_lvgN)` branch, reads and writes the
 # cached data raw: no element call, no nil check, no Integer helper in a
 # subscript, and `J++` for its step. Today's loop follows it, in the else. The
-# fixtures pin the arrays the entry guard turns away to the fallback.
+# fixtures pin the arrays the entry guard turns away to the fallback. In a
+# threaded build the fast arm runs in chunks (LOOP_VERSION_CHUNKED): each
+# chunk's inner loop is as check-free, the poll between chunks refreshes the
+# cache, the guard is tested again, and today's loop follows to go on from
+# where the arm stopped. That fixture also runs on one worker, where the other
+# thread gets in only at a poll.
 LOOP_VERSION_TESTS = $(wildcard test/loop_version_*.rb)
+LOOP_VERSION_CHUNKED = test/loop_version_thread_shrink.rb
 loop-version-test: $(SPINEL) $(SP_RT_LIB) $(SPINEL_TIMEOUT)
 	@tmp=$$(mktemp -d /tmp/spinel-loopver.XXXXXX); ok=1; \
 	for f in test/loop_version_alias.rb test/loop_version_reduction.rb; do \
@@ -1960,6 +1966,26 @@ loop-version-test: $(SPINEL) $(SP_RT_LIB) $(SPINEL_TIMEOUT)
 	  set -- $$r; \
 	  [ "$$1" -gt 0 ] || { echo "loop-version-test: FAIL ($$f: no loop was versioned)"; ok=0; }; \
 	  [ "$$2" -eq 0 ] || { echo "loop-version-test: FAIL ($$f: $$2 fast-arm checks left, or a fast arm without today's loop after it)"; ok=0; }; \
+	done; \
+	for f in $(LOOP_VERSION_CHUNKED); do \
+	  $(SPINEL) $$f -S --no-line-map > "$$tmp/o.c" 2>/dev/null || { echo "loop-version-test: FAIL ($$f: compile)"; ok=0; continue; }; \
+	  r=$$(awk '/if \(_lvg[0-9]+\) \{/ { getline; if ($$0 !~ /for \(;;\) \{/) next; n++; f = 1; p = 0; t = 0; next } \
+	    f == 1 && /for \(; lv_[a-z0-9_]+ < _lvc[0-9]+; lv_[a-z0-9_]+\+\+\)/ { f = 2; next } \
+	    f == 2 && /sp_(Int|Float)Array_(get|set)|SP_FLOAT_NIL_CK|\[[^]]*sp_int_/ { bad++ } \
+	    f == 2 && /if \(lv_[a-z0-9_]+ >= _lvn[0-9]+\) break;/ { f = 3; next } \
+	    f == 3 && /SP_SAFEPOINT_POLL\(\)\)\) sp_safepoint\(\), _SP_HCR[0-9]+\(\);/ { p = 1 } \
+	    f == 3 && /\{ _lvg[0-9]+ = 1;/ { t = 1 } \
+	    f == 3 && /if \(!_lvg[0-9]+\) break;/ { if (!p || !t) bad++; f = 4; next } \
+	    f == 4 && /^ *while \(/ { f = 0; next } \
+	    f == 4 && !/^ *\}$$/ { bad++; f = 0 } \
+	    END { if (f) bad++; print n + 0, bad + 0 }' "$$tmp/o.c"); \
+	  set -- $$r; \
+	  [ "$$1" -gt 0 ] || { echo "loop-version-test: FAIL ($$f: no loop was versioned in chunks)"; ok=0; }; \
+	  [ "$$2" -eq 0 ] || { echo "loop-version-test: FAIL ($$f: $$2 chunked arms with a check left, no poll or re-test, or no today's loop after)"; ok=0; }; \
+	  $(SPINEL) $$f -o "$$tmp/b" >/dev/null 2>&1 || { echo "loop-version-test: FAIL ($$f: compile)"; ok=0; continue; }; \
+	  SPINEL_WORKERS=1 $(TIMEOUT60) "$$tmp/b" > "$$tmp/out" 2>&1; \
+	  cmp -s "$$tmp/out" $$f.expected || \
+	    { echo "loop-version-test: FAIL ($$f differs, SPINEL_WORKERS=1)"; diff -u $$f.expected "$$tmp/out" | head -5; ok=0; }; \
 	done; \
 	for f in $(LOOP_VERSION_TESTS); do \
 	  $(SPINEL) $$f -o "$$tmp/b" >/dev/null 2>&1 || { echo "loop-version-test: FAIL ($$f: compile)"; ok=0; continue; }; \

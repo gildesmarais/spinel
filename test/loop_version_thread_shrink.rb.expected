@@ -1,0 +1,9 @@
+shrink: x.length 99000
+shrink: c a prefix true
+shrink: passes ordered true
+shrink: errors true
+shrink: after join raised
+freeze: w frozen true
+freeze: w a prefix true
+freeze: passes ordered true
+freeze: after join raised FrozenError
