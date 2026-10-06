@@ -1689,7 +1689,11 @@ static int emit_kind_array_call(Compiler *c, int id, Buf *b, const NodeTable *nt
   if ((is_element_at_alias(name)) && argc == 1) {
     /* an array whose header the loop being emitted holds (hc_array):
        in range, read the element there; anything else, the get */
-    char hd[48], hl[48], hw[48];
+    char hd[48], hl[48], hw[48], fr[200];
+    if ((rt == TY_INT_ARRAY || rt == TY_FLOAT_ARRAY) && hc_fast_access(c, recv, argv[0], 0, fr, sizeof fr)) {
+      buf_puts(b, fr);   /* in range and no nil by the versioned loop's guard */
+      { *out = 1; return 1; }
+    }
     if ((rt == TY_INT_ARRAY || rt == TY_FLOAT_ARRAY) && comp_ntype(c, argv[0]) == TY_INT &&
         hc_array(c, recv, rt == TY_FLOAT_ARRAY, hd, hl, hw, sizeof hd)) {
       if (hc_index_in_range(c, recv, argv[0])) {   /* in range by the loop's own test */
