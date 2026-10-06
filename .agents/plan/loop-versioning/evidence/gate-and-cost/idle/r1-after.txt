@@ -1,0 +1,37 @@
+## r1-after 2026-10-06T21:56:26+0200
+### uptime
+21:56  up  1:57, 2 users, load averages: 2.49 2.89 2.60
+### top -l 2 -o cpu -n 10 -s 1 (second sample)
+Processes: 817 total, 2 running, 815 sleeping, 3944 threads 
+2026/10/06 21:56:26
+Load Avg: 2.49, 2.89, 2.60 
+CPU usage: 5.13% user, 5.13% sys, 89.72% idle 
+SharedLibs: 688M resident, 128M data, 151M linkedit.
+MemRegions: 0 total, 0B resident, 260M private, 1855M shared.
+PhysMem: 15G used (1613M wired, 5392M compressor), 120M unused.
+VM: 427T vsize, 57G framework vsize, 0(0) swapins, 0(0) swapouts.
+Networks: packets: 540876/330M in, 337887/148M out.
+Disks: 1745711/32G read, 551670/20G written.
+
+PID   COMMAND          %CPU STATE   
+709   spotlightknowled 11.5 sleeping
+836   OrbStack Helper  9.2  sleeping
+7318  top              7.2  running 
+0     kernel_task      4.9  running 
+1269  Cursor Helper (P 3.3  sleeping
+1192  Cursor Helper (R 3.1  sleeping
+382   dasd             2.2  sleeping
+1268  Cursor Helper (P 1.8  sleeping
+520   com.apple.Driver 1.8  sleeping
+774   Little Snitch Ag 1.4  sleeping
+### pmset -g batt
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=22610019)	100%; charged; 0:00 remaining present: true
+### pmset -g therm
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded
+### pmset -g (lowpowermode)
+ lowpowermode         0
+### CPU idle 89.7%
+### verdict: OK

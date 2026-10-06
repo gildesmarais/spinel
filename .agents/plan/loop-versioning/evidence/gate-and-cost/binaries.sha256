@@ -1,0 +1,11 @@
+# sha256 at 21:58 +0200, after the run sessions (no rebuild since the build session of 15:00-15:10)
+98c9e6877b4d4f3ce665bfd04ecc7875a388f56bab8c07447c26e7e785c349da  tmp/wt-base/bin/spinel
+ebbd220a136719fee1b5d9842dac25b4098f6e4881882f5008d6bd1120f6b6c6  tmp/wt-head/bin/spinel
+a1293ff32170dc946cebdfc3a42cfc4a97fe9ae468127ffc12572664aaccf812  tmp/gc/base/bm_matmul.bin
+04890fd8e93c85ceb5ba52fce24740761a636e2cf199b939b1e6a9a1a497929c  tmp/gc/head/bm_matmul.bin
+1fa5e2c4595412187ec0edf85586f826c971c8e1829aa87dbd4365b9ef0ddd93  tmp/gc/base/bm_spectral_norm.bin
+58541183c13c961457ff4613ec935c9708f1cdb40c78f34966beacdd2a8a8d9b  tmp/gc/head/bm_spectral_norm.bin
+f224edaa09b5c46987fa4ca1b71b851108f916b513ca6b71f4728e41a0ee9348  tmp/gc/base/bm_huffman.bin
+4880cc222e1c891d226708ac91648328b6015b89ce33c6b16d17cf2265ebd2f9  tmp/gc/head/bm_huffman.bin
+8fb24fac19e103931a60b09f0e646682cc5c3b55d3cdd5cd997559484c73f679  tmp/gc/base/optcarrot-harness
+8fb24fac19e103931a60b09f0e646682cc5c3b55d3cdd5cd997559484c73f679  tmp/gc/head/optcarrot-harness

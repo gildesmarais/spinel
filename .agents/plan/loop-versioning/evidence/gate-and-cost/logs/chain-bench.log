@@ -1,0 +1,333 @@
+21:55:09 r1: attempt 1
+21:55:11 load 2.53 3.03 2.63 idle 76.2% top [mediaanalysisd 121.2, OrbStack Helper 6.8, kernel_task 4.7, Brave Browser He 4.6] BUSY: idle 76.2% < 85%; mediaanalysisd 121.2%
+21:55:43 load 2.58 2.99 2.63 idle 93.8% top [OrbStack Helper 10.8, kernel_task 4.7, Cursor Helper (R 2.9, Cursor Helper (P 2.0] READY
+## r1-before 2026-10-06T21:55:44+0200
+### uptime
+21:55  up  1:56, 2 users, load averages: 2.58 2.99 2.63
+### top -l 2 -o cpu -n 10 -s 1 (second sample)
+Processes: 821 total, 2 running, 819 sleeping, 3939 threads 
+2026/10/06 21:55:44
+Load Avg: 2.54, 2.97, 2.62 
+CPU usage: 2.77% user, 3.70% sys, 93.51% idle 
+SharedLibs: 696M resident, 129M data, 156M linkedit.
+MemRegions: 0 total, 0B resident, 258M private, 1899M shared.
+PhysMem: 15G used (1622M wired, 5380M compressor), 80M unused.
+VM: 430T vsize, 57G framework vsize, 0(0) swapins, 0(0) swapouts.
+Networks: packets: 538093/330M in, 335716/147M out.
+Disks: 1740367/32G read, 549796/20G written.
+
+PID   COMMAND          %CPU STATE   
+6874  top              5.5  running 
+836   OrbStack Helper  5.3  sleeping
+0     kernel_task      4.6  running 
+1192  Cursor Helper (R 2.9  sleeping
+1269  Cursor Helper (P 2.6  sleeping
+774   Little Snitch Ag 1.6  sleeping
+5625  Brave Browser He 1.5  sleeping
+1268  Cursor Helper (P 1.0  sleeping
+469   airportd         0.9  sleeping
+520   com.apple.Driver 0.8  sleeping
+### pmset -g batt
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=22610019)	100%; charged; 0:00 remaining present: true
+### pmset -g therm
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded
+### pmset -g (lowpowermode)
+ lowpowermode         0
+### CPU idle 93.5%
+### verdict: OK
+21:55:45 r1-before: load 2.58 2.99 2.63 idle 93.5% top [OrbStack Helper 5.3, kernel_task 4.6, Cursor Helper (R 2.9, Cursor Helper (P 2.6] READY
+21:55:45 bm_matmul: 30 rounds
+21:55:45 bm_spectral_norm: 30 rounds
+21:55:46 bm_huffman: 30 rounds
+## r1-after 2026-10-06T21:55:47+0200
+### uptime
+21:55  up  1:56, 2 users, load averages: 2.54 2.97 2.62
+### top -l 2 -o cpu -n 10 -s 1 (second sample)
+Processes: 821 total, 2 running, 819 sleeping, 3936 threads 
+2026/10/06 21:55:47
+Load Avg: 2.54, 2.97, 2.62 
+CPU usage: 14.39% user, 5.13% sys, 80.46% idle 
+SharedLibs: 693M resident, 129M data, 156M linkedit.
+MemRegions: 0 total, 0B resident, 257M private, 1899M shared.
+PhysMem: 15G used (1622M wired, 5404M compressor), 75M unused.
+VM: 430T vsize, 57G framework vsize, 0(0) swapins, 0(0) swapouts.
+Networks: packets: 538221/330M in, 335813/147M out.
+Disks: 1743468/32G read, 549801/20G written.
+
+PID   COMMAND          %CPU STATE   
+722   mediaanalysisd   94.7 sleeping
+0     kernel_task      11.8 running 
+836   OrbStack Helper  7.5  sleeping
+7083  top              7.3  running 
+1192  Cursor Helper (R 2.6  sleeping
+5625  Brave Browser He 2.1  sleeping
+1269  Cursor Helper (P 2.0  sleeping
+1268  Cursor Helper (P 1.2  sleeping
+774   Little Snitch Ag 1.2  sleeping
+582   mds_stores       0.9  sleeping
+### pmset -g batt
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=22610019)	100%; charged; 0:00 remaining present: true
+### pmset -g therm
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded
+### pmset -g (lowpowermode)
+ lowpowermode         0
+### CPU idle 80.5%
+### verdict: ABORT: mediaanalysisd (pid 722) at 94.7% CPU
+21:55:47 r1-after: load 2.54 2.97 2.62 idle 80.5% top [mediaanalysisd 94.7, kernel_task 11.8, OrbStack Helper 7.5, Cursor Helper (R 2.6] BUSY: idle 80.5% < 85%; mediaanalysisd 94.7%
+21:55:47 r1: attempt voided as void3
+21:55:47 r1: attempt 2
+21:55:49 load 2.54 2.97 2.62 idle 78.4% top [mediaanalysisd 26.7, Cursor Helper (R 23.9, corespeechd 14.5, OrbStack Helper 9.7] BUSY: idle 78.4% < 85%; mediaanalysisd 26.7%; Cursor Helper (R 23.9%
+21:56:21 load 2.10 2.82 2.58 idle 93.8% top [OrbStack Helper 6.8, kernel_task 5.3, Cursor Helper (R 2.3, Cursor Helper (P 1.9] READY
+## r1-before 2026-10-06T21:56:23+0200
+### uptime
+21:56  up  1:57, 2 users, load averages: 2.10 2.82 2.58
+### top -l 2 -o cpu -n 10 -s 1 (second sample)
+Processes: 819 total, 2 running, 817 sleeping, 3950 threads 
+2026/10/06 21:56:23
+Load Avg: 2.10, 2.82, 2.58 
+CPU usage: 2.79% user, 4.2% sys, 93.18% idle 
+SharedLibs: 689M resident, 129M data, 152M linkedit.
+MemRegions: 0 total, 0B resident, 261M private, 1856M shared.
+PhysMem: 15G used (1615M wired, 5399M compressor), 75M unused.
+VM: 430T vsize, 57G framework vsize, 0(0) swapins, 0(0) swapouts.
+Networks: packets: 540643/330M in, 337694/147M out.
+Disks: 1745633/32G read, 551422/20G written.
+
+PID   COMMAND          %CPU STATE   
+7109  top              7.3  running 
+836   OrbStack Helper  6.4  sleeping
+0     kernel_task      5.5  running 
+1192  Cursor Helper (R 2.6  sleeping
+1269  Cursor Helper (P 2.4  sleeping
+774   Little Snitch Ag 1.5  sleeping
+5625  Brave Browser He 1.4  sleeping
+520   com.apple.Driver 1.2  sleeping
+1268  Cursor Helper (P 0.9  sleeping
+552   mullvad-daemon   0.6  sleeping
+### pmset -g batt
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=22610019)	100%; charged; 0:00 remaining present: true
+### pmset -g therm
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded
+### pmset -g (lowpowermode)
+ lowpowermode         0
+### CPU idle 93.2%
+### verdict: OK
+21:56:23 r1-before: load 2.10 2.82 2.58 idle 93.2% top [OrbStack Helper 6.4, kernel_task 5.5, Cursor Helper (R 2.6, Cursor Helper (P 2.4] READY
+21:56:23 bm_matmul: 30 rounds
+21:56:23 bm_spectral_norm: 30 rounds
+21:56:24 bm_huffman: 30 rounds
+## r1-after 2026-10-06T21:56:26+0200
+### uptime
+21:56  up  1:57, 2 users, load averages: 2.49 2.89 2.60
+### top -l 2 -o cpu -n 10 -s 1 (second sample)
+Processes: 817 total, 2 running, 815 sleeping, 3944 threads 
+2026/10/06 21:56:26
+Load Avg: 2.49, 2.89, 2.60 
+CPU usage: 5.13% user, 5.13% sys, 89.72% idle 
+SharedLibs: 688M resident, 128M data, 151M linkedit.
+MemRegions: 0 total, 0B resident, 260M private, 1855M shared.
+PhysMem: 15G used (1613M wired, 5392M compressor), 120M unused.
+VM: 427T vsize, 57G framework vsize, 0(0) swapins, 0(0) swapouts.
+Networks: packets: 540876/330M in, 337887/148M out.
+Disks: 1745711/32G read, 551670/20G written.
+
+PID   COMMAND          %CPU STATE   
+709   spotlightknowled 11.5 sleeping
+836   OrbStack Helper  9.2  sleeping
+7318  top              7.2  running 
+0     kernel_task      4.9  running 
+1269  Cursor Helper (P 3.3  sleeping
+1192  Cursor Helper (R 3.1  sleeping
+382   dasd             2.2  sleeping
+1268  Cursor Helper (P 1.8  sleeping
+520   com.apple.Driver 1.8  sleeping
+774   Little Snitch Ag 1.4  sleeping
+### pmset -g batt
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=22610019)	100%; charged; 0:00 remaining present: true
+### pmset -g therm
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded
+### pmset -g (lowpowermode)
+ lowpowermode         0
+### CPU idle 89.7%
+### verdict: OK
+21:56:26 r1-after: load 2.49 2.89 2.60 idle 89.7% top [spotlightknowled 11.5, OrbStack Helper 9.2, kernel_task 4.9, Cursor Helper (P 3.3] READY
+21:56:26 r1: KEPT
+21:56:26 r2: attempt 1
+21:56:27 load 2.49 2.89 2.60 idle 89.4% top [mediaanalysisd 23.4, OrbStack Helper 5.8, kernel_task 5.6, launchd 5.3] BUSY: mediaanalysisd 23.4%
+21:56:59 load 2.18 2.77 2.57 idle 91.8% top [OrbStack Helper 10.9, Cursor Helper (R 8.7, kernel_task 5.1, Cursor Helper (P 2.5] READY
+## r2-before 2026-10-06T21:57:01+0200
+### uptime
+21:56  up  1:57, 2 users, load averages: 2.17 2.76 2.57
+### top -l 2 -o cpu -n 10 -s 1 (second sample)
+Processes: 814 total, 2 running, 812 sleeping, 3924 threads 
+2026/10/06 21:57:01
+Load Avg: 2.17, 2.76, 2.57 
+CPU usage: 4.70% user, 4.14% sys, 91.14% idle 
+SharedLibs: 675M resident, 127M data, 151M linkedit.
+MemRegions: 0 total, 0B resident, 244M private, 1916M shared.
+PhysMem: 15G used (1616M wired, 5374M compressor), 80M unused.
+VM: 427T vsize, 57G framework vsize, 0(0) swapins, 0(0) swapouts.
+Networks: packets: 543440/331M in, 339946/148M out.
+Disks: 1746811/32G read, 553151/20G written.
+
+PID   COMMAND          %CPU STATE   
+406   loginwindow      10.9 sleeping
+7347  top              7.2  running 
+836   OrbStack Helper  6.7  sleeping
+0     kernel_task      6.0  running 
+1192  Cursor Helper (R 5.8  sleeping
+402   WindowServer     2.7  sleeping
+1269  Cursor Helper (P 2.2  sleeping
+774   Little Snitch Ag 1.5  sleeping
+5625  Brave Browser He 1.5  sleeping
+1268  Cursor Helper (P 1.3  sleeping
+### pmset -g batt
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=22610019)	100%; charged; 0:00 remaining present: true
+### pmset -g therm
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded
+### pmset -g (lowpowermode)
+ lowpowermode         0
+### CPU idle 91.1%
+### verdict: OK
+21:57:01 r2-before: load 2.17 2.76 2.57 idle 91.1% top [loginwindow 10.9, OrbStack Helper 6.7, kernel_task 6.0, Cursor Helper (R 5.8] READY
+21:57:01 bm_matmul: 30 rounds
+21:57:02 bm_spectral_norm: 30 rounds
+21:57:02 bm_huffman: 30 rounds
+## r2-after 2026-10-06T21:57:04+0200
+### uptime
+21:57  up  1:57, 2 users, load averages: 2.17 2.76 2.57
+### top -l 2 -o cpu -n 10 -s 1 (second sample)
+Processes: 815 total, 2 running, 813 sleeping, 3927 threads 
+2026/10/06 21:57:04
+Load Avg: 2.23, 2.76, 2.57 
+CPU usage: 6.19% user, 4.27% sys, 89.52% idle 
+SharedLibs: 675M resident, 127M data, 151M linkedit.
+MemRegions: 0 total, 0B resident, 244M private, 1915M shared.
+PhysMem: 15G used (1617M wired, 5379M compressor), 79M unused.
+VM: 428T vsize, 57G framework vsize, 0(0) swapins, 0(0) swapouts.
+Networks: packets: 543567/331M in, 340069/148M out.
+Disks: 1746888/32G read, 553179/20G written.
+
+PID   COMMAND          %CPU STATE   
+722   mediaanalysisd   52.4 sleeping
+836   OrbStack Helper  13.0 sleeping
+7557  top              6.8  running 
+0     kernel_task      5.1  running 
+1192  Cursor Helper (R 2.7  sleeping
+1269  Cursor Helper (P 2.4  sleeping
+774   Little Snitch Ag 1.5  sleeping
+5625  Brave Browser He 1.5  sleeping
+1268  Cursor Helper (P 1.1  sleeping
+582   mds_stores       1.0  sleeping
+### pmset -g batt
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=22610019)	100%; charged; 0:00 remaining present: true
+### pmset -g therm
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded
+### pmset -g (lowpowermode)
+ lowpowermode         0
+### CPU idle 89.5%
+### verdict: OK
+21:57:04 r2-after: load 2.17 2.76 2.57 idle 89.5% top [mediaanalysisd 52.4, OrbStack Helper 13.0, kernel_task 5.1, Cursor Helper (R 2.7] BUSY: mediaanalysisd 52.4%
+21:57:04 r2: attempt voided as void2
+21:57:04 r2: attempt 2
+21:57:05 load 2.23 2.76 2.57 idle 82.8% top [mediaanalysisd 29.6, Cursor Helper (R 25.5, OrbStack Helper 5.0, kernel_task 4.4] BUSY: idle 82.8% < 85%; mediaanalysisd 29.6%; Cursor Helper (R 25.5%
+21:57:37 load 2.27 2.72 2.56 idle 94.4% top [Cursor Helper (R 5.9, OrbStack Helper 5.4, kernel_task 4.3, authd 2.8] READY
+## r2-before 2026-10-06T21:57:39+0200
+### uptime
+21:57  up  1:58, 2 users, load averages: 2.27 2.72 2.56
+### top -l 2 -o cpu -n 10 -s 1 (second sample)
+Processes: 817 total, 2 running, 815 sleeping, 3927 threads 
+2026/10/06 21:57:39
+Load Avg: 2.17, 2.69, 2.55 
+CPU usage: 2.79% user, 4.2% sys, 93.18% idle 
+SharedLibs: 675M resident, 127M data, 151M linkedit.
+MemRegions: 0 total, 0B resident, 245M private, 1916M shared.
+PhysMem: 15G used (1612M wired, 5362M compressor), 78M unused.
+VM: 429T vsize, 57G framework vsize, 0(0) swapins, 0(0) swapouts.
+Networks: packets: 545585/331M in, 341825/149M out.
+Disks: 1747160/32G read, 553784/20G written.
+
+PID   COMMAND          %CPU STATE   
+7588  top              7.2  running 
+836   OrbStack Helper  5.2  sleeping
+0     kernel_task      4.4  running 
+1192  Cursor Helper (R 2.8  sleeping
+1269  Cursor Helper (P 2.1  sleeping
+1268  Cursor Helper (P 1.7  sleeping
+5625  Brave Browser He 1.4  sleeping
+774   Little Snitch Ag 1.2  sleeping
+469   airportd         1.0  sleeping
+395   bluetoothd       0.8  sleeping
+### pmset -g batt
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=22610019)	100%; charged; 0:00 remaining present: true
+### pmset -g therm
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded
+### pmset -g (lowpowermode)
+ lowpowermode         0
+### CPU idle 93.2%
+### verdict: OK
+21:57:39 r2-before: load 2.27 2.72 2.56 idle 93.2% top [OrbStack Helper 5.2, kernel_task 4.4, Cursor Helper (R 2.8, Cursor Helper (P 2.1] READY
+21:57:39 bm_matmul: 30 rounds
+21:57:40 bm_spectral_norm: 30 rounds
+21:57:40 bm_huffman: 30 rounds
+## r2-after 2026-10-06T21:57:42+0200
+### uptime
+21:57  up  1:58, 2 users, load averages: 2.17 2.69 2.55
+### top -l 2 -o cpu -n 10 -s 1 (second sample)
+Processes: 818 total, 2 running, 816 sleeping, 3942 threads 
+2026/10/06 21:57:42
+Load Avg: 2.17, 2.69, 2.55 
+CPU usage: 4.26% user, 5.39% sys, 90.33% idle 
+SharedLibs: 675M resident, 127M data, 151M linkedit.
+MemRegions: 45 total, 1648K resident, 244M private, 1915M shared.
+PhysMem: 15G used (1611M wired, 5424M compressor), 111M unused.
+VM: 429T vsize, 57G framework vsize, 0(0) swapins, 0(0) swapouts.
+Networks: packets: 545953/332M in, 342142/149M out.
+Disks: 1747362/32G read, 554012/20G written.
+
+PID   COMMAND          %CPU STATE   
+0     kernel_task      8.0  running 
+7798  top              6.9  running 
+836   OrbStack Helper  5.5  sleeping
+1269  Cursor Helper (P 3.5  sleeping
+1192  Cursor Helper (R 3.1  sleeping
+1268  Cursor Helper (P 2.0  sleeping
+5625  Brave Browser He 1.3  sleeping
+5555  Brave Browser    1.3  sleeping
+774   Little Snitch Ag 1.0  sleeping
+520   com.apple.Driver 1.0  sleeping
+### pmset -g batt
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=22610019)	100%; charged; 0:00 remaining present: true
+### pmset -g therm
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded
+### pmset -g (lowpowermode)
+ lowpowermode         0
+### CPU idle 90.3%
+### verdict: OK
+21:57:42 r2-after: load 2.17 2.69 2.55 idle 90.3% top [kernel_task 8.0, OrbStack Helper 5.5, Cursor Helper (P 3.5, Cursor Helper (R 3.1] READY
+21:57:42 r2: KEPT
+21:57:42 CHAIN-DONE

@@ -6,14 +6,14 @@ Both compilers were built with `make -j8 all` in their own detached worktrees,
 `tmp/wt-base` (`52c5ccf74`) and `tmp/wt-head` (`4ca5b952a`), each with
 `vendor/` symlinked to the main checkout's.
 
-**Status: the gate, which loops version, binary and C size, and the
-benchmarks' compile time are done. The run-time comparison (benchmarks and
-optcarrot) is not: from 15:10:50 the machine was on battery, and it went to
-sleep at 15:11:06. Every check since then has found it on battery, and the
-abort rule forbids measuring on battery.** What the size data shows already
-bounds that comparison: 61 of the 64 benchmark binaries, and optcarrot's,
-are byte-identical between base and HEAD, so only three benchmarks can
-differ at run time (see [Run time](#run-time-not-measured)).
+**Status: done.** The gate, which loops version, binary and C size, the
+benchmarks' compile time and run time are all measured. The run-time
+sessions ran on AC power from 21:53 to 21:58, after a reboot at about 19:59
+([Run time](#run-time)). **HEAD runs `bm_matmul` in 0.36x base's time, and
+nothing measured is slower.** Only optcarrot's compile time is still
+indicative, because its re-run on AC power was not part of that pass. 61 of
+the 64 benchmark binaries, and optcarrot's, are byte-identical between base
+and HEAD, so only three benchmarks can differ at run time.
 
 ## `make gate` on HEAD
 
@@ -105,37 +105,75 @@ every sample is in [`build.csv`](gate-and-cost/build.csv).
   Rounds 1–4 were done near or before the unplug: base 4,975–5,086 ms, head
   5,014–5,235 ms, and `spinel -c` 558–588 ms against 562–591 ms. With
   identical C, only spinel's own time could differ, and it does not
-  measurably. The re-run on AC power never got its window.
+  measurably. The re-run on AC power has not been taken.
 
-## Run time (not measured)
+## Run time
 
-The harness is in place (`cost.rb run r1` with `ROUNDS=30`: base and head
-interleaved, two warm-up rounds, every sample recorded, an AC check before
-and after each benchmark; then `cost.rb fps r1 20` for optcarrot), but it never ran.
-Every pre-session check found the machine on battery (attempts at 16:31,
-16:43 and 18:06), and the abort rule stopped each one before its first
-sample. `probe.csv` is only the output check: every benchmark binary on both
-sides printed its `.expected` text. The single times next to each result are
-unsupervised, and were taken while the power kept switching, so they are not
-measurements.
+Measured on 2026-10-06, 21:53 to 21:58 +0200, on AC power, after a reboot
+at about 19:59. The binaries are the build session's (15:00 to 15:10), not
+rebuilt. Their sha256, taken after the sessions, are in
+[`binaries.sha256`](gate-and-cost/binaries.sha256). Base and HEAD differ
+only in `bm_matmul`, `bm_spectral_norm` and `bm_huffman`. Optcarrot's
+harness binary (the Makefile's recipe: `--no-line-map`,
+`-DSP_INT_OVERFLOW_MODE_WRAP`) is the same file on both sides. Nothing was
+built or tested during a session.
 
-What is known without measuring:
+How it was measured:
 
-- 61 benchmark binaries and the optcarrot harness binary (the Makefile's
-  recipe: `--no-line-map`, `-DSP_INT_OVERFLOW_MODE_WRAP`) are byte-identical
-  between base and HEAD. For them, base against head can only read noise.
-- `bm_spectral_norm`'s and `bm_huffman`'s versioned loops run once, over `n`
-  and over 256 elements. Neither is on a hot path.
-- `bm_matmul` is the only benchmark whose hot loop changed. Its kernel was
-  measured in Phase 03 (r1/r2: 10.4x at `n = 500`). At the shipped
-  `n = 150`, process start-up dominates (2.6 ms of about 3–4 ms).
+- **Benchmarks:** `cost.rb run SESSION` with `ROUNDS=30`. Each benchmark
+  runs 2 warm-up rounds per side, then 30 rounds that alternate which side
+  goes first. A sample is the wall time of one process, spawn to exit. Each
+  session (r1 and r2) took about 2 s.
+- **Optcarrot:** `cost.rb fps r1 20`. 2 warm-up rounds, then 20 alternating
+  rounds. Each run must print `checksum: 59662`.
+- **Gating:** [`chain.rb`](gate-and-cost/chain.rb), then
+  [`chain-bench.rb`](gate-and-cost/chain-bench.rb). Each waits for
+  [`settle.rb`](gate-and-cost/settle.rb) to read ready: CPU at least 85%
+  idle, no process at 20% CPU or more, no `mds*`/`mdworker` at 5% or more,
+  and on AC power. Each session is bracketed by `cost.rb idle`. A benchmark
+  session counts only when both bracket readings also pass settle's rule.
+  Otherwise it is voided and retried.
+- **Raw data:** [`run-r1.csv`](gate-and-cost/run-r1.csv),
+  [`run-r2.csv`](gate-and-cost/run-r2.csv) and
+  [`fps-r1.csv`](gate-and-cost/fps-r1.csv) hold every sample. The voided
+  attempts are in [`void/`](gate-and-cost/void/), the summaries in
+  [`run-summary.md`](gate-and-cost/run-summary.md), and the logs in
+  [`logs/`](gate-and-cost/logs/).
 
-To resume on AC power (the worktrees and `tmp/gc/` are left in place):
+"Outside the noise" means the two sides' IQRs do not overlap and the
+Mann–Whitney p is below 0.01 (`analyze.rb`).
 
-```sh
-caffeinate -i sh -c 'S=tmp/gc/cost.rb; ruby $S idle run1-before && ROUNDS=30 ruby $S run r1 && ruby $S fps r1 20 && ruby $S idle run1-after && ruby $S idle build2-before && ruby $S build 10 tmp/gc/optcarrot-single.rb && ruby $S idle build2-after'
-ruby tmp/gc/analyze.rb run r1; ruby tmp/gc/analyze.rb optcarrot tmp/gc/fps-r1.csv
-```
+| Benchmark | Loops | Session | base median ms (IQR) | head median ms (IQR) | head/base | MWU p | Verdict |
+| --- | --: | --- | --: | --: | --: | --: | --- |
+| `bm_matmul` | 2 | r1 | 8.58 (0.14) | 3.12 (0.09) | **0.364** | 2.9e-11 | faster, outside noise |
+| `bm_matmul` | 2 | r2 | 8.59 (0.28) | 3.16 (0.31) | **0.368** | 2.9e-11 | faster, outside noise |
+| `bm_spectral_norm` | 1 | r1 | 3.36 (0.09) | 3.36 (0.12) | 1.000 | 0.50 | within noise |
+| `bm_spectral_norm` | 1 | r2 | 3.38 (0.15) | 3.37 (0.11) | 0.997 | 0.85 | within noise |
+| `bm_huffman` | 1 | r1 | 7.07 (0.27) | 7.04 (0.22) | 0.996 | 0.33 | within noise |
+| `bm_huffman` | 1 | r2 | 7.04 (0.09) | 7.04 (0.12) | 1.000 | 0.98 | within noise |
+
+Optcarrot, a noise check because its binaries are the same file: the
+median is 1946.4 fps on base (IQR 22.8) and 1937.8 fps on HEAD (IQR 36.1),
+so head/base is 0.996 with MWU p 0.19, which is within noise. Each side has
+one outlier, base 1763.0 in round 12 and HEAD 616.9 in round 10. These fps
+figures are the harness's own and cannot be compared with the 244.8 fps the
+gate printed under load.
+
+- **r1 and r2 agree.** Base medians differ by 0.03 ms at most, and the
+  ratios by 0.004. The five voided attempts give the same numbers to within
+  0.15 ms (`bm_matmul` 0.362–0.365), with one exception: `r1-void2` ran while
+  Cursor's renderer was at 66% CPU, and every median there is 0.1–1.3 ms
+  higher, with IQRs of 0.4–0.8 ms. That is the gate doing its job.
+- **`bm_matmul`** is 5.5 ms faster per run. If start-up is about 2.6 ms
+  (Phase 03), the kernel and its init loop take about 6.0 ms on base and
+  0.5 ms on HEAD, roughly 11x. That is consistent with Phase 03's 10.4x at
+  `n = 500`.
+- **`bm_spectral_norm` and `bm_huffman`** each run their versioned loop
+  once. The guard costs nothing measurable at a resolution of about ±3%
+  (IQR 0.1–0.3 ms).
+- **No regression.** The 61 identical benchmark binaries were not re-timed,
+  because base against head can only read noise for them. The optcarrot
+  session shows that noise level.
 
 ## Idle readings
 
@@ -161,6 +199,49 @@ power-management log is what shows the session ran on AC power. Nothing
 was running in the window but the session and the owner's desktop. No
 thermal or performance warning was recorded at any check.
 
+### Run-time sessions (after the reboot)
+
+The machine rebooted at about 19:59. `settle.rb` (rule above: CPU idle ≥ 85%,
+no process ≥ 20%, no indexing, AC) logged every poll to
+[`idle/settle.log`](gate-and-cost/idle/settle.log).
+
+- **Settling:** from 20:02:17 (load 91.95 / 70.70 / 31.24, 48.6% idle;
+  `mediaanalysisd` 154%, `mds_stores` 14%, Cursor's renderer 50%), it
+  passed through `ANECompilerService` 79% and `visualintelligence` 36% at
+  20:09, and read ready at 20:12:59 (load 2.88, 91.8% idle), **11 minutes
+  in**.
+- **Stalls:** the session launch then stalled twice, about 30 minutes and
+  then about 60 minutes, on a tool permission prompt that never came up.
+  That was not time spent waiting on the machine. The polls in between
+  (20:43–20:47) found `duetexpertd` at 90%, then the desktop UI (WindowServer
+  44%, Cursor 20–21%). From 21:47 the machine read ready again.
+- **Gate waits:** inside the chains, each settle gate waited 0.5–3 minutes,
+  mostly for `mediaanalysisd` and the desktop UI.
+- **Total:** the time spent waiting on the machine itself was about 23
+  minutes, inside the 45-minute budget.
+
+`mediaanalysisd` came up 1–3 s after 6 of the 7 benchmark sessions, and
+after the optcarrot session, at 23–96% CPU. It looks like a background task
+that waits for the machine to go idle. That is why 5 attempts were voided.
+In the two kept sessions, it does not show in either bracket reading.
+
+| Session | When (+0200) | load 1/5/15 | CPU idle | top consumers (%CPU) | power, thermal | verdict |
+| --- | --- | --- | --: | --- | --- | --- |
+| r1 before | 21:56:23 | 2.10 2.82 2.58 | 93.2% | OrbStack Helper 6.4, kernel_task 5.5 | AC, 100% charged; no thermal or performance warning; LPM 0 | OK |
+| r1 after | 21:56:26 | 2.49 2.89 2.60 | 89.7% | spotlightknowledged 11.5, OrbStack Helper 9.2 | same | OK, **kept** |
+| optcarrot before | 21:53:10 | 2.78 3.35 2.67 | 88.2% | Cursor Helper (Renderer) 19.8, OrbStack Helper 6.4 | same | OK |
+| optcarrot after | 21:53:18 | 2.65 3.30 2.66 | 91.5% | OrbStack Helper 8.1, kernel_task 5.9 | same | OK, **kept** |
+| r2 before | 21:57:39 | 2.17 2.69 2.55 | 93.2% | OrbStack Helper 5.2, kernel_task 4.4 | same | OK |
+| r2 after | 21:57:42 | 2.17 2.69 2.55 | 90.3% | kernel_task 8.0, OrbStack Helper 5.5 | same | OK, **kept** |
+| r1-void1 | 21:47:16 / 21:47:19 | 1.70 1.80 1.90 | 94.5% / 79.3% | after: mediaanalysisd 96.3 | same | void |
+| r1-void2 | 21:50:24 / 21:50:27 | 5.85 3.27 2.47 | 70.0% / 71.7% | before: Cursor Helper (Renderer) 66.3, WindowServer 24.5; after: mediaanalysisd 43.0 | same | void |
+| r2-void1 | 21:53:53 / 21:53:56 | 2.33 3.14 2.63 | 90.4% / 91.4% | before: Cursor Helper (Renderer) 25.6; after: mediaanalysisd 25.3 | same | void |
+| r1-void3 | 21:55:44 / 21:55:47 | 2.54 2.97 2.62 | 93.5% / 80.5% | after: mediaanalysisd 94.7 | same | void |
+| r2-void2 | 21:57:01 / 21:57:04 | 2.17 2.76 2.57 | 91.1% / 89.5% | after: mediaanalysisd 52.4 | same | void |
+
+The `top` process itself (5–8%) is not counted. Every reading is in
+[`idle/`](gate-and-cost/idle/).
+
 ## Verdict
 
 The size and compile-time cost is acceptable. It is the 4 loops that
@@ -170,10 +251,17 @@ binaries do not grow at all, and compile time does not move outside the
 noise. A program in which no loop qualifies, optcarrot among them, compiles
 to the same C and the same binary. The cost grows with the number of
 versioned loops, not with program size, and optcarrot, the large program,
-versions none. The run-time half of the regression question is still open
-for the three changed binaries: `bm_matmul`'s kernel is already measured,
-and the other two run their versioned loop once.
+versions none.
 
-Follow-ups: the run-time session on AC power (command above), the
-`const` warning at `src/codegen_stmt.c:6758`, and the fact that no benchmark
-reaches the chunked, threaded form.
+The run-time cost is nil, and the gain is real. In two sessions that agree,
+`bm_matmul` runs in 0.364x and 0.368x base's time, which is outside the
+noise. `bm_spectral_norm` and `bm_huffman` read 0.996–1.000, within noise,
+and so does optcarrot, whose binary is the same file (0.996). No benchmark
+is slower.
+
+Follow-ups:
+
+- optcarrot's compile time on AC power (`cost.rb build 10
+  tmp/gc/optcarrot-single.rb`, bracketed by `cost.rb idle`);
+- the `const` warning at `src/codegen_stmt.c:6758`;
+- the fact that no benchmark reaches the chunked, threaded form.

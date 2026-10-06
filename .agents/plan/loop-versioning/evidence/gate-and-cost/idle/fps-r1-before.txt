@@ -1,0 +1,37 @@
+## fps-r1-before 2026-10-06T21:53:10+0200
+### uptime
+21:53  up  1:53, 2 users, load averages: 2.78 3.35 2.67
+### top -l 2 -o cpu -n 10 -s 1 (second sample)
+Processes: 818 total, 3 running, 815 sleeping, 4003 threads 
+2026/10/06 21:53:10
+Load Avg: 2.78, 3.35, 2.67 
+CPU usage: 6.27% user, 5.49% sys, 88.22% idle 
+SharedLibs: 697M resident, 129M data, 157M linkedit.
+MemRegions: 0 total, 0B resident, 221M private, 1975M shared.
+PhysMem: 15G used (1692M wired, 5552M compressor), 364M unused.
+VM: 435T vsize, 57G framework vsize, 0(0) swapins, 0(0) swapouts.
+Networks: packets: 524517/325M in, 325460/144M out.
+Disks: 1704264/31G read, 538143/20G written.
+
+PID   COMMAND          %CPU STATE   
+1192  Cursor Helper (R 19.8 sleeping
+6292  top              7.1  running 
+836   OrbStack Helper  6.4  running 
+0     kernel_task      6.4  running 
+6153  Brave Browser He 5.8  sleeping
+395   bluetoothd       3.4  sleeping
+663   sharingd         2.3  sleeping
+1269  Cursor Helper (P 2.3  sleeping
+552   mullvad-daemon   1.8  sleeping
+556   at.obdev.littles 1.6  sleeping
+### pmset -g batt
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=22610019)	100%; charged; 0:00 remaining present: true
+### pmset -g therm
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded
+### pmset -g (lowpowermode)
+ lowpowermode         0
+### CPU idle 88.2%
+### verdict: OK

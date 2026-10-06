@@ -1,0 +1,83 @@
+21:47:13 >> settle.rb
+21:47:14 load 1.70 1.80 1.90 idle 92.4% top [at.obdev.littles 7.0, Cursor Helper (R 7.0, kernel_task 5.5, OrbStack Helper 4.6] READY
+21:47:14 >> cost.rb idle r1-before
+## r1-before 2026-10-06T21:47:16+0200
+### uptime
+21:47  up  1:48, 2 users, load averages: 1.70 1.80 1.90
+### top -l 2 -o cpu -n 10 -s 1 (second sample)
+Processes: 764 total, 2 running, 762 sleeping, 3461 threads 
+2026/10/06 21:47:16
+Load Avg: 1.70, 1.80, 1.90 
+CPU usage: 2.25% user, 3.26% sys, 94.47% idle 
+SharedLibs: 785M resident, 151M data, 180M linkedit.
+MemRegions: 0 total, 0B resident, 424M private, 2150M shared.
+PhysMem: 15G used (1412M wired, 2968M compressor), 91M unused.
+VM: 373T vsize, 57G framework vsize, 0(0) swapins, 0(0) swapouts.
+Networks: packets: 329524/157M in, 225651/86M out.
+Disks: 1429207/28G read, 488208/20G written.
+
+PID   COMMAND          %CPU STATE   
+836   OrbStack Helper  8.5  sleeping
+4536  top              7.8  running 
+0     kernel_task      3.7  running 
+1192  Cursor Helper (R 3.0  sleeping
+378   locationd        1.6  sleeping
+1269  Cursor Helper (P 1.5  sleeping
+395   bluetoothd       1.1  sleeping
+1268  Cursor Helper (P 0.9  sleeping
+774   Little Snitch Ag 0.9  sleeping
+469   airportd         0.8  sleeping
+### pmset -g batt
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=22610019)	100%; charged; 0:00 remaining present: true
+### pmset -g therm
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded
+### pmset -g (lowpowermode)
+ lowpowermode         0
+### CPU idle 94.5%
+### verdict: OK
+21:47:16 >> cost.rb run r1 bm_matmul.rb bm_spectral_norm.rb bm_huffman.rb
+21:47:16 bm_matmul: 30 rounds
+21:47:17 bm_spectral_norm: 30 rounds
+21:47:17 bm_huffman: 30 rounds
+21:47:17 >> cost.rb idle r1-after
+## r1-after 2026-10-06T21:47:19+0200
+### uptime
+21:47  up  1:48, 2 users, load averages: 1.72 1.81 1.90
+### top -l 2 -o cpu -n 10 -s 1 (second sample)
+Processes: 766 total, 2 running, 764 sleeping, 3381 threads 
+2026/10/06 21:47:19
+Load Avg: 1.72, 1.81, 1.90 
+CPU usage: 14.20% user, 6.47% sys, 79.31% idle 
+SharedLibs: 785M resident, 151M data, 181M linkedit.
+MemRegions: 0 total, 0B resident, 426M private, 2150M shared.
+PhysMem: 15G used (1413M wired, 2968M compressor), 82M unused.
+VM: 374T vsize, 57G framework vsize, 0(0) swapins, 0(0) swapouts.
+Networks: packets: 329580/157M in, 225685/86M out.
+Disks: 1434312/28G read, 488212/20G written.
+
+PID   COMMAND          %CPU STATE   
+722   mediaanalysisd   96.3 sleeping
+0     kernel_task      10.9 running 
+836   OrbStack Helper  9.4  sleeping
+4746  top              7.2  running 
+554   searchpartyd     3.3  sleeping
+1192  Cursor Helper (R 2.6  sleeping
+378   locationd        2.5  sleeping
+1269  Cursor Helper (P 2.1  sleeping
+774   Little Snitch Ag 1.3  sleeping
+1268  Cursor Helper (P 1.0  sleeping
+### pmset -g batt
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=22610019)	100%; charged; 0:00 remaining present: true
+### pmset -g therm
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded
+### pmset -g (lowpowermode)
+ lowpowermode         0
+### CPU idle 79.3%
+### verdict: ABORT: mediaanalysisd (pid 722) at 96.3% CPU
+21:47:19 STOPPED at /Users/gil/versioned/gildesmarais/spinel/tmp/gc/cost.rb idle r1-after (exit 2)

@@ -1,0 +1,37 @@
+## r1-after 2026-10-06T21:55:47+0200
+### uptime
+21:55  up  1:56, 2 users, load averages: 2.54 2.97 2.62
+### top -l 2 -o cpu -n 10 -s 1 (second sample)
+Processes: 821 total, 2 running, 819 sleeping, 3936 threads 
+2026/10/06 21:55:47
+Load Avg: 2.54, 2.97, 2.62 
+CPU usage: 14.39% user, 5.13% sys, 80.46% idle 
+SharedLibs: 693M resident, 129M data, 156M linkedit.
+MemRegions: 0 total, 0B resident, 257M private, 1899M shared.
+PhysMem: 15G used (1622M wired, 5404M compressor), 75M unused.
+VM: 430T vsize, 57G framework vsize, 0(0) swapins, 0(0) swapouts.
+Networks: packets: 538221/330M in, 335813/147M out.
+Disks: 1743468/32G read, 549801/20G written.
+
+PID   COMMAND          %CPU STATE   
+722   mediaanalysisd   94.7 sleeping
+0     kernel_task      11.8 running 
+836   OrbStack Helper  7.5  sleeping
+7083  top              7.3  running 
+1192  Cursor Helper (R 2.6  sleeping
+5625  Brave Browser He 2.1  sleeping
+1269  Cursor Helper (P 2.0  sleeping
+1268  Cursor Helper (P 1.2  sleeping
+774   Little Snitch Ag 1.2  sleeping
+582   mds_stores       0.9  sleeping
+### pmset -g batt
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=22610019)	100%; charged; 0:00 remaining present: true
+### pmset -g therm
+Note: No thermal warning level has been recorded
+Note: No performance warning level has been recorded
+Note: No CPU power status has been recorded
+### pmset -g (lowpowermode)
+ lowpowermode         0
+### CPU idle 80.5%
+### verdict: ABORT: mediaanalysisd (pid 722) at 94.7% CPU
