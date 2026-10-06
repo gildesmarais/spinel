@@ -1627,9 +1627,10 @@ int name_is_enumerable_module_method(const char *m) {
    answers: a local or ivar some write left the sentinel in, a call whose
    return can be it, a missed element read; a literal, an arithmetic result
    or a length never. Its answer is what decides whether a comparison tests
-   for the sentinel, so a loop's `i < n` stays a bare compare. */
+   for the sentinel, so a loop's `i < n` stays a bare compare. In a versioned
+   loop's fast arm the entry guard answers for what it vetted (hc_fast_nilfree). */
 int cmp_operand_may_be_nil(Compiler *c, int id) {
-  return id >= 0 && nullable_int_value(c, id);
+  return id >= 0 && nullable_int_value(c, id) && !hc_fast_nilfree(c, id);
 }
 /* A float-result operand as the arithmetic arm reads it (emit_scalar_operand). */
 static void emit_float_operand_expr(Compiler *c, int node, Buf *b) {

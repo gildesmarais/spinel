@@ -710,6 +710,7 @@ file, no compiler, a bad option). This is a contract.
 | `gc-save` | a method whose roots are all elided drops its root-stack save and restore; denied, it keeps them |
 | `root-frame` | a method, proc, Fiber or END body roots through one frame (`--no-root-frame`); denied, each root is pushed |
 | `inline-force` | a hot small method is forced inline (`--no-inline-hot`); denied, the C compiler decides |
+| `loop-version` | a header-cached loop runs a raw-pointer fast arm behind one entry guard; denied, it runs today's loop alone |
 | `pd-hoist` | a poly dispatch's switch is moved out of line, into a function its call sites share (`SPINEL_NO_PD_HOIST`); denied, it stays inline at the call |
 | `strbuf-raw` | a reader hands out a string buffer's bytes without a copy; denied, it copies |
 | `no-alloc` | an operand is taken not to allocate, so what was evaluated before it needs no temp or root; denied, it is treated as allocating |
