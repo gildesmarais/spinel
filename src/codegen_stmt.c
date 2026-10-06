@@ -6404,7 +6404,7 @@ typedef struct { int id; int n; HcEntry e[16]; NameSet wl, wi; char mark[32];
                  /* the versioned loop (hc_version): its induction local, the
                     arrays and offsets its fast arm indexes, the locals it
                     takes to be no nil -- all for the entry guard to test */
-                 int fast, fast_bad, nent0;
+                 int fast, fast_bad, nent0, chunk;
                  char jn[64], jt[64];
                  HcUse u[16]; int nu;
                  char ok[8][160]; int onode[8]; int no;
@@ -6729,7 +6729,12 @@ int hc_index_in_range(Compiler *c, int recv, int idx) {
    goes through the ordinary emitters with the region in fast mode
    (hc_fast_access, hc_fast_nilfree); it is dropped, leaving today's loop
    alone, when any write in it kept its slow path (the mark), as such a write
-   may move an array the guard vetted. A loop with a poll keeps today's form. */
+   may move an array the guard vetted. In a build whose loops poll (threads,
+   finalizers) the fast arm runs HC_CHUNK passes at a time with today's polls
+   between the chunks; another thread or a finalizer may have shrunk, frozen
+   or nil-filled an array there, so after the polls the cache refreshes and
+   the guard is tested again, and when it fails today's loop goes on from the
+   current j. */
 
 static int hc_is_j(const NodeTable *nt, int id, const char *jn) {
   return id >= 0 && nt_kind(nt, id) == NK_LocalVariableReadNode && nt_str(nt, id, "name") &&
@@ -6813,7 +6818,6 @@ static int hc_vbody_ok(Compiler *c, int id, const HcRegion *r) {
 /* Is the loop one hc_version can emit twice? Records j's name in the region. */
 static int hc_versioned_shape(Compiler *c, int prev, int pred, int body, HcRegion *r) {
   const NodeTable *nt = c->nt;
-  if (g_uses_threads || g_uses_finalizers) return 0;
   if (prev < 0 || pred < 0 || body < 0 || nt_kind(nt, pred) != NK_CallNode) return 0;
   const char *op = nt_str(nt, pred, "name");
   int iv = nt_ref(nt, pred, "receiver");
@@ -6981,18 +6985,21 @@ static int hc_ofs_emit(Compiler *c, HcRegion *r, int id, Buf *g, char *out, size
   }
 }
 
-/* The entry guard's statements: _lvgN ends 1 when the fast arm may run. */
-static int hc_emit_guard(Compiler *c, HcRegion *r, int nv, Buf *g) {
+/* The entry guard's statements: _lvgN ends 1 when the fast arm may run. With
+   decl 0 they assign the guard's locals rather than declare them: the re-test
+   after a chunk's polls. */
+static int hc_emit_guard(Compiler *c, HcRegion *r, int nv, Buf *g, int decl) {
   const NodeTable *nt = c->nt;
   char x[160];
   int tn = 0, id = r->id;
-  buf_printf(g, "int _lvg%d = 1;", id);
+  const char *si = decl ? "sp_int " : "";
+  buf_printf(g, "%s_lvg%d = 1;", decl ? "int " : "", id);
   if (nt_kind(nt, nv) == NK_IntegerNode) snprintf(x, sizeof x, "%lldLL", (long long)nt_int(nt, nv, "value", 0));
   else if (!hc_text(c, nv, x, sizeof x)) return 0;
-  buf_printf(g, " sp_int _lvn%d = %s; if (_lvn%d < 0) _lvg%d = 0;", id, x, id, id);
+  buf_printf(g, " %s_lvn%d = %s; if (_lvn%d < 0) _lvg%d = 0;", si, id, x, id, id);
   for (int k = 0; k < r->no; k++) {
     if (!hc_ofs_emit(c, r, r->onode[k], g, x, sizeof x, &tn)) return 0;
-    buf_printf(g, " sp_int _lvo%d_%d = %s; if (_lvo%d_%d < 0) _lvg%d = 0;", id, k, x, id, k, id);
+    buf_printf(g, " %s_lvo%d_%d = %s; if (_lvo%d_%d < 0) _lvg%d = 0;", si, id, k, x, id, k, id);
   }
   for (int i = 0; i < r->nu; i++) {
     int e = r->u[i].e, k = r->u[i].k;
@@ -7010,8 +7017,12 @@ static int hc_emit_guard(Compiler *c, HcRegion *r, int nv, Buf *g) {
   return 1;
 }
 
+/* passes of a polling build's fast arm between two polls */
+enum { HC_CHUNK = 4096 };
+
 /* The guard and the fast arm, into out, ending in the `else {` today's loop
-   follows; out stays empty when the loop keeps today's form alone. */
+   follows, or in a chunked arm (r->chunk) that today's loop follows and goes
+   on from; out stays empty when the loop keeps today's form alone. */
 static void hc_version(Compiler *c, int id, int pred, int body, HcRegion *r, Buf *out, int indent) {
   const NodeTable *nt = c->nt;
   int sv_tmp = g_tmp;
@@ -7031,18 +7042,46 @@ static void hc_version(Compiler *c, int id, int pred, int body, HcRegion *r, Buf
   r->fast = 0;
   const char *ft = fb.p ? fb.p : "";
   Buf gb; memset(&gb, 0, sizeof gb);
+  Buf rb; memset(&rb, 0, sizeof rb);
+  r->chunk = g_uses_threads || g_uses_finalizers;
   int ok = !r->fast_bad && r->nu > 0 && !strstr(ft, r->mark) && !strstr(ft, "Array_set") &&
-           hc_emit_guard(c, r, pav[0], &gb) && decide_node(nt, id, "loop-version", NULL);
-  if (ok) {
+           hc_emit_guard(c, r, pav[0], &gb, 1) && (!r->chunk || hc_emit_guard(c, r, pav[0], &rb, 0)) &&
+           decide_node(nt, id, "loop-version", NULL);
+  const char *j = r->jt;
+  int n = r->id;
+  if (ok && !r->chunk) {
     emit_indent(out, indent); buf_printf(out, "{ %s\n", gb.p);
-    emit_indent(out, indent + 1); buf_printf(out, "if (_lvg%d) {\n", r->id);
-    emit_indent(out, indent + 2); buf_printf(out, "for (; %s < _lvn%d; %s++) {\n", r->jt, r->id, r->jt);
+    emit_indent(out, indent + 1); buf_printf(out, "if (_lvg%d) {\n", n);
+    emit_indent(out, indent + 2); buf_printf(out, "for (; %s < _lvn%d; %s++) {\n", j, n, j);
     buf_puts(out, ft);
     emit_indent(out, indent + 2); buf_puts(out, "}\n");
     emit_indent(out, indent + 1); buf_puts(out, "} else {\n");
   }
+  else if (ok) {
+    emit_indent(out, indent); buf_printf(out, "{ %s\n", gb.p);
+    emit_indent(out, indent + 1); buf_printf(out, "if (_lvg%d) {\n", n);
+    emit_indent(out, indent + 2); buf_puts(out, "for (;;) {\n");
+    emit_indent(out, indent + 3);
+    buf_printf(out, "sp_int _lvc%d = _lvn%d - %s > %d ? %s + %d : _lvn%d;\n", n, n, j, HC_CHUNK, j, HC_CHUNK, n);
+    emit_indent(out, indent + 3); buf_printf(out, "for (; %s < _lvc%d; %s++) {\n", j, n, j);
+    buf_puts(out, ft);
+    emit_indent(out, indent + 3); buf_puts(out, "}\n");
+    emit_indent(out, indent + 3); buf_printf(out, "if (%s >= _lvn%d) break;\n", j, n);
+    if (g_uses_threads) {
+      emit_indent(out, indent + 3);
+      buf_printf(out, "if (SP_UNLIKELY(SP_SAFEPOINT_POLL())) sp_safepoint(), _SP_HCR%d();\n", n);
+    }
+    if (g_uses_finalizers) {
+      emit_indent(out, indent + 3);
+      buf_printf(out, "if (SP_UNLIKELY(SP_ATOMIC_LOAD(&sp_fin_pending_flag, __ATOMIC_RELAXED))) sp_fin_run_pending(), _SP_HCR%d();\n", n);
+    }
+    emit_indent(out, indent + 3); buf_printf(out, "{ %s }\n", rb.p);
+    emit_indent(out, indent + 3); buf_printf(out, "if (!_lvg%d) break;\n", n);
+    emit_indent(out, indent + 2); buf_puts(out, "}\n");
+    emit_indent(out, indent + 1); buf_puts(out, "}\n");
+  }
   else g_tmp = sv_tmp;
-  free(fb.p); free(gb.p);
+  free(fb.p); free(gb.p); free(rb.p);
 }
 
 /* The loop's text, with the declarations and the refresh ahead of it when
@@ -7088,7 +7127,10 @@ static void hc_close(HcRegion *r, const char *loop, const char *vers, Buf *b, in
     if (r->n > 0) buf_puts(b, call);
   }
   buf_puts(b, p);
-  if (vs) { emit_indent(b, indent + 2); buf_puts(b, "}\n"); emit_indent(b, indent + 1); buf_puts(b, "}\n"); }
+  if (vs) {
+    if (!r->chunk) { emit_indent(b, indent + 2); buf_puts(b, "}\n"); }
+    emit_indent(b, indent + 1); buf_puts(b, "}\n");
+  }
   if (r->n > 0) {
     buf_printf(b, "#undef _SP_HCR%d\n", r->id);
     emit_indent(b, indent); buf_puts(b, "}\n");
