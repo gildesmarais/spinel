@@ -7,9 +7,10 @@
 > and its chunked form, with the polls between chunks, in builds with them.
 > The phased
 > implementation plan and the evidence behind every number and claim below
-> are in
-> [`.agents/plan/loop-versioning.md`](../../.agents/plan/loop-versioning.md)
-> and [`.agents/plan/loop-versioning/evidence/`](../../.agents/plan/loop-versioning/evidence/).
+> are archived on the `simd-loops-versioning-evidence` branch, pinned at
+> `404c67731`:
+> [`.agents/plan/loop-versioning.md`](https://github.com/gildesmarais/spinel/blob/404c67731f85b6039f8c255e969b98ab1222cc3c/.agents/plan/loop-versioning.md)
+> and [`.agents/plan/loop-versioning/evidence/`](https://github.com/gildesmarais/spinel/tree/404c67731f85b6039f8c255e969b98ab1222cc3c/.agents/plan/loop-versioning/evidence).
 
 ## The problem
 
