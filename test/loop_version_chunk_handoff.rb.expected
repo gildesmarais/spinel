@@ -1,0 +1,5 @@
+shrink: NoMethodError
+shrink: x.length 10000
+shrink: filled 10000
+freeze: FrozenError
+freeze: w frozen true

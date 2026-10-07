@@ -225,6 +225,13 @@ int hc_string(Compiler *c, int recv, char *d, char *l, size_t cap);
    be no nil: *n names a length that is 0 while the array may hold one. */
 int hc_array_nilfree(Compiler *c, int recv, char *d, char *n, size_t cap);
 const char *hc_mark(void);
+/* The fast arm of a versioned loop (codegen_stmt.c, hc_version): hc_fast_on
+   while it is emitted; hc_fast_access the raw element `recv[idx]` into ref,
+   or 0 for an access that keeps its checks; hc_fast_nilfree whether an
+   Integer / Float operand is no nil there, by the loop's entry guard. */
+int hc_fast_on(void);
+int hc_fast_access(Compiler *c, int recv, int idx, int write, char *ref, size_t cap);
+int hc_fast_nilfree(Compiler *c, int id);
 int call_is_scalar_op(Compiler *c, int id);   /* a builtin operator over scalars */
 /* Whether the subtree at `id` assigns the local `nm`: a write, an op-write
    or a multiple-assignment target by that name. */
@@ -871,7 +878,7 @@ void cg_memo_put(CgMemo *m, const char *key, int tag, int val);
 const char *re_lit_src(Compiler *c, int nid);
 void emit_interp(Compiler *c, int id, Buf *b);
 int emit_regex_pat_to_buf(Compiler *c, int nid, Buf *b);
-int nameset_has(NameSet *s, const char *nm);
+int nameset_has(const NameSet *s, const char *nm);
 void nameset_add(NameSet *s, const char *nm);
 /* Emit the C lvalue for local `name` in the current emission context: a
    captured var inside a proc body -> the cell in _cap; a cell local in its

@@ -2060,7 +2060,8 @@ static int iow_scalar_fold(Compiler *c, TyKind et, const char *op, TyKind vt, in
    set no flag, so it is not one. Answers 1 when it emitted the read. */
 static int emit_nilfree_operand(Compiler *c, int v, const char *op, Buf *b) {
   const NodeTable *nt = c->nt;
-  if (nt_kind(nt, v) != NK_CallNode) return 0;
+  /* a versioned loop's fast arm reads it raw (hc_fast_access) */
+  if (nt_kind(nt, v) != NK_CallNode || hc_fast_on()) return 0;
   const char *vn = nt_str(nt, v, "name");
   int vr = nt_ref(nt, v, "receiver"), va = nt_ref(nt, v, "arguments"), vc = 0;
   const int *vav = va >= 0 ? nt_arr(nt, va, "arguments", &vc) : NULL;
@@ -2169,7 +2170,8 @@ int emit_scalar_op_assign(Compiler *c, const char *lval, TyKind t, const char *o
      binary form: a raw C `lv_x *= y` silently wrapped where `x * y` raised.
      Bitwise ops map straight to the C operator (fixed-width wrap, same as the
      binary `x << y` path). */
-  int rnil = fop && !nfread && (vt == TY_POLY || ((vt == TY_FLOAT || vt == TY_INT) && nullable_int_value(c, v)));
+  int rnil = fop && !nfread && (vt == TY_POLY || ((vt == TY_FLOAT || vt == TY_INT) && nullable_int_value(c, v) &&
+                                                  !hc_fast_nilfree(c, v)));
   /* + - * / of two Floats test the result for NaN first (SP_FLOAT_NIL_CK_NAN) */
   if (fop && (lhs_nil || rnil) && vt == TY_FLOAT && !ffn) {
     int k = ++g_tmp;
@@ -6396,8 +6398,17 @@ static int subtree_changes_local(Compiler *c, int root, const char *name) {
    nor the ivar. */
 enum { HC_INT, HC_FLOAT, HC_STR };
 typedef struct { char recv[200]; int kind; int nf; } HcEntry;   /* nf: hc_array_nilfree asked */
+typedef struct { int e, k, rd, wr; } HcUse;   /* entry e read/written at offset k (-1: none) */
 typedef struct { int id; int n; HcEntry e[16]; NameSet wl, wi; char mark[32];
-                 char bi[64], ba[64]; } HcRegion;  /* bi/ba: see hc_bounded_index */
+                 char bi[64], ba[64];   /* bi/ba: see hc_bounded_index */
+                 /* the versioned loop (hc_version): its induction local, the
+                    arrays and offsets its fast arm indexes, the locals it
+                    takes to be no nil -- all for the entry guard to test */
+                 int fast, fast_bad, nent0, chunk;
+                 char jn[64], jt[64];
+                 HcUse u[16]; int nu;
+                 char ok[8][160]; int onode[8]; int no;
+                 char lt[8][64]; TyKind lk[8]; int nl; } HcRegion;
 static HcRegion *g_hc = NULL;
 /* the loops' own numbering: drawn from g_tmp, it would renumber every temp
    after a loop that qualifies and then caches nothing */
@@ -6566,6 +6577,9 @@ static int hc_entry(Compiler *c, int recv, int kind) {
   if (!hc_recv_text(c, recv, kind, t, sizeof t)) return -1;
   for (int i = 0; i < g_hc->n; i++)
     if (g_hc->e[i].kind == kind && sp_streq(g_hc->e[i].recv, t)) return i;
+  /* the fast arm is emitted after today's loop: an entry that loop did not
+     cache has no header the guard could test */
+  if (g_hc->fast) return -1;
   if (g_hc->n >= (int)(sizeof g_hc->e / sizeof g_hc->e[0])) return -1;
   snprintf(g_hc->e[g_hc->n].recv, sizeof g_hc->e[0].recv, "%s", t);
   g_hc->e[g_hc->n].kind = kind;
@@ -6695,10 +6709,386 @@ int hc_index_in_range(Compiler *c, int recv, int idx) {
          nt_str(nt, idx, "name") && sp_streq(nt_str(nt, idx, "name"), g_hc->bi);
 }
 
+/* ---- Loop versioning (docs/internals/loop-versioning.md) ----
+
+   A cached loop of the shape
+     j = <a literal >= 0>
+     while j < n             # n: a literal, or an Integer local the loop does not assign
+       ... x[B + j] ... y[j] = ...
+       j += 1                # or j = j + 1
+     end
+   where every Integer / Float array access indexes j, B + j or j + B (B built
+   from literals, locals the loop does not assign, + - *) is emitted twice:
+   today's text, and ahead of it a fast arm that reads and writes the cached
+   data pointers raw, behind one entry guard. The guard tests, before the first
+   pass, everything the fast arm's dropped checks would have tested on any
+   pass: each array non-null, writable where written, holding no nil (its
+   may_nil) where read, each B + j in range for every j below n with no
+   overflow, each nullable local the fast arm reads no nil. When it fails
+   nothing has run yet, and today's loop runs from the start. The fast arm
+   goes through the ordinary emitters with the region in fast mode
+   (hc_fast_access, hc_fast_nilfree); it is dropped, leaving today's loop
+   alone, when any write in it kept its slow path (the mark), as such a write
+   may move an array the guard vetted. In a build whose loops poll (threads,
+   finalizers) the fast arm runs HC_CHUNK passes at a time with today's polls
+   between the chunks; another thread or a finalizer may have shrunk, frozen
+   or nil-filled an array there, so after the polls the cache refreshes and
+   the guard is tested again, and when it fails today's loop goes on from the
+   current j. */
+
+static int hc_is_j(const NodeTable *nt, int id, const char *jn) {
+  return id >= 0 && nt_kind(nt, id) == NK_LocalVariableReadNode && nt_str(nt, id, "name") &&
+         sp_streq(nt_str(nt, id, "name"), jn);
+}
+
+static int hc_paren_inner(const NodeTable *nt, int id) {
+  int s = nt_ref(nt, id, "body"), n = 0;
+  const int *st = s >= 0 && nt_kind(nt, s) == NK_StatementsNode ? nt_arr(nt, s, "body", &n) : NULL;
+  return st && n == 1 ? st[0] : -1;
+}
+
+/* An offset B: the same value at every pass, and computable before the first. */
+static int hc_ofs_ok(Compiler *c, int id, const HcRegion *r) {
+  const NodeTable *nt = c->nt;
+  if (id < 0 || comp_ntype(c, id) != TY_INT) return 0;
+  switch (nt_kind(nt, id)) {
+    case NK_IntegerNode: return !nt_str(nt, id, "bigval");
+    case NK_LocalVariableReadNode: {
+      const char *nm = nt_str(nt, id, "name");
+      return nm && !sp_streq(nm, r->jn) && !nameset_has(&r->wl, nm);
+    }
+    case NK_ParenthesesNode: return hc_ofs_ok(c, hc_paren_inner(nt, id), r);
+    case NK_CallNode: {
+      const char *op = nt_str(nt, id, "name");
+      int rv = nt_ref(nt, id, "receiver"), a = nt_ref(nt, id, "arguments"), ac = 0;
+      const int *av = a >= 0 ? nt_arr(nt, a, "arguments", &ac) : NULL;
+      return op && (sp_streq(op, "+") || sp_streq(op, "-") || sp_streq(op, "*")) && ac == 1 &&
+             nt_ref(nt, id, "block") < 0 && hc_ofs_ok(c, rv, r) && hc_ofs_ok(c, av[0], r);
+    }
+    default: return 0;
+  }
+}
+
+/* An index of the form j, B + j or j + B: *b is B, or -1 for j alone. */
+static int hc_index_shape(Compiler *c, int idx, const HcRegion *r, int *b) {
+  const NodeTable *nt = c->nt;
+  if (idx < 0 || comp_ntype(c, idx) != TY_INT) return 0;
+  if (hc_is_j(nt, idx, r->jn)) { *b = -1; return 1; }
+  if (nt_kind(nt, idx) != NK_CallNode || !nt_str(nt, idx, "name") || !sp_streq(nt_str(nt, idx, "name"), "+") ||
+      nt_ref(nt, idx, "block") >= 0) return 0;
+  int rv = nt_ref(nt, idx, "receiver"), a = nt_ref(nt, idx, "arguments"), ac = 0;
+  const int *av = a >= 0 ? nt_arr(nt, a, "arguments", &ac) : NULL;
+  if (ac != 1) return 0;
+  if (hc_is_j(nt, av[0], r->jn) && hc_ofs_ok(c, rv, r)) { *b = rv; return 1; }
+  if (hc_is_j(nt, rv, r->jn) && hc_ofs_ok(c, av[0], r)) { *b = av[0]; return 1; }
+  return 0;
+}
+
+/* Every typed-array access in the body has an index hc_index_shape takes, and
+   nothing leaves a pass early: a `next` would skip the closing increment the
+   fast arm's `j++` stands for. An op-assign on an element keeps today's form. */
+static int hc_vbody_ok(Compiler *c, int id, const HcRegion *r) {
+  const NodeTable *nt = c->nt;
+  if (id < 0) return 1;
+  switch (nt_kind(nt, id)) {
+    case NK_BreakNode: case NK_NextNode: case NK_RedoNode: case NK_IndexOperatorWriteNode: return 0;
+    case NK_CallNode: {
+      const char *nm = nt_str(nt, id, "name");
+      int rv = nt_ref(nt, id, "receiver");
+      TyKind rt = rv >= 0 ? comp_ntype(c, rv) : TY_UNKNOWN;
+      if (nm && (rt == TY_INT_ARRAY || rt == TY_FLOAT_ARRAY) && (sp_streq(nm, "[]=") || is_element_at_alias(nm))) {
+        int a = nt_ref(nt, id, "arguments"), ac = 0, b = -1;
+        const int *av = a >= 0 ? nt_arr(nt, a, "arguments", &ac) : NULL;
+        if (ac < 1 || !hc_index_shape(c, av[0], r, &b)) return 0;
+      }
+      break;
+    }
+    default: break;
+  }
+  int nr = nt_num_refs(nt, id);
+  for (int i = 0; i < nr; i++) if (!hc_vbody_ok(c, nt_ref_at(nt, id, i), r)) return 0;
+  int na = nt_num_arrs(nt, id);
+  for (int i = 0; i < na; i++) {
+    int n = 0; const int *el = nt_arr_at(nt, id, i, &n);
+    for (int k = 0; k < n; k++) if (!hc_vbody_ok(c, el[k], r)) return 0;
+  }
+  return 1;
+}
+
+/* Is the loop one hc_version can emit twice? Records j's name in the region. */
+static int hc_versioned_shape(Compiler *c, int prev, int pred, int body, HcRegion *r) {
+  const NodeTable *nt = c->nt;
+  if (prev < 0 || pred < 0 || body < 0 || nt_kind(nt, pred) != NK_CallNode) return 0;
+  const char *op = nt_str(nt, pred, "name");
+  int iv = nt_ref(nt, pred, "receiver");
+  int pa = nt_ref(nt, pred, "arguments"), pac = 0;
+  const int *pav = pa >= 0 ? nt_arr(nt, pa, "arguments", &pac) : NULL;
+  if (!op || !sp_streq(op, "<") || pac != 1 || nt_ref(nt, pred, "block") >= 0 ||
+      iv < 0 || nt_kind(nt, iv) != NK_LocalVariableReadNode || comp_ntype(c, iv) != TY_INT) return 0;
+  const char *jn = nt_str(nt, iv, "name");
+  int nv = pav[0];
+  if (!jn || strlen(jn) >= sizeof r->jn || comp_ntype(c, nv) != TY_INT) return 0;
+  if (nt_kind(nt, nv) == NK_IntegerNode) { if (nt_str(nt, nv, "bigval")) return 0; }
+  else if (nt_kind(nt, nv) != NK_LocalVariableReadNode || !nt_str(nt, nv, "name") ||
+           sp_streq(nt_str(nt, nv, "name"), jn) || nameset_has(&r->wl, nt_str(nt, nv, "name"))) return 0;
+  if (nt_kind(nt, prev) != NK_LocalVariableWriteNode || !nt_str(nt, prev, "name") ||
+      !sp_streq(nt_str(nt, prev, "name"), jn)) return 0;
+  int pv = nt_ref(nt, prev, "value");
+  if (pv < 0 || nt_kind(nt, pv) != NK_IntegerNode || nt_str(nt, pv, "bigval") || nt_int(nt, pv, "value", -1) < 0) return 0;
+  if (nt_kind(nt, body) != NK_StatementsNode) return 0;
+  int bn = 0;
+  const int *bs = nt_arr(nt, body, "body", &bn);
+  if (bn < 2) return 0;
+  /* the closing `j += 1` or `j = j + 1`, the body's only write of j */
+  int inc = bs[bn - 1], one = -1;
+  if (nt_kind(nt, inc) == NK_LocalVariableOperatorWriteNode && nt_str(nt, inc, "name") &&
+      sp_streq(nt_str(nt, inc, "name"), jn) && nt_str(nt, inc, "binary_operator") &&
+      sp_streq(nt_str(nt, inc, "binary_operator"), "+"))
+    one = nt_ref(nt, inc, "value");
+  else if (nt_kind(nt, inc) == NK_LocalVariableWriteNode && nt_str(nt, inc, "name") &&
+           sp_streq(nt_str(nt, inc, "name"), jn)) {
+    int sum = nt_ref(nt, inc, "value");
+    int sa = sum >= 0 && nt_kind(nt, sum) == NK_CallNode ? nt_ref(nt, sum, "arguments") : -1, sac = 0;
+    const int *sav = sa >= 0 ? nt_arr(nt, sa, "arguments", &sac) : NULL;
+    if (sav && sac == 1 && nt_str(nt, sum, "name") && sp_streq(nt_str(nt, sum, "name"), "+") &&
+        hc_is_j(nt, nt_ref(nt, sum, "receiver"), jn) && nt_ref(nt, sum, "block") < 0)
+      one = sav[0];
+  }
+  if (one < 0 || nt_kind(nt, one) != NK_IntegerNode || nt_int(nt, one, "value", 0) != 1) return 0;
+  for (int k = 0; k < bn - 1; k++) if (subtree_changes_local(c, bs[k], jn)) return 0;
+  if (subtree_changes_local(c, pred, jn)) return 0;
+  snprintf(r->jn, sizeof r->jn, "%s", jn);
+  for (int k = 0; k < bn - 1; k++) if (!hc_vbody_ok(c, bs[k], r)) return 0;
+  return 1;
+}
+
+/* The C text of a node, as a key or as the guard's copy: rendered to be read,
+   so the temps it numbered go back. */
+static int hc_text(Compiler *c, int id, char *out, size_t cap) {
+  int sv_tmp = g_tmp;
+  Buf t; memset(&t, 0, sizeof t);
+  emit_expr(c, id, &t);
+  const char *s = t.p ? t.p : "";
+  int ok = s[0] && strlen(s) < cap && !strstr(s, "({");
+  if (ok) snprintf(out, cap, "%s", s);
+  free(t.p);
+  g_tmp = sv_tmp;
+  return ok;
+}
+
+static int hc_entry_find(Compiler *c, int recv, int kind) {
+  char t[200];
+  if (!hc_recv_text(c, recv, kind, t, sizeof t)) return -1;
+  for (int i = 0; i < g_hc->nent0; i++)
+    if (g_hc->e[i].kind == kind && sp_streq(g_hc->e[i].recv, t)) return i;
+  return -1;
+}
+
+int hc_fast_on(void) { return g_hc && g_hc->fast; }
+
+/* In the fast arm, the raw element `recv[idx]` into ref, recorded for the
+   guard; 0 for an access that keeps its checks. Such a write marks the arm
+   bad: it could move an array the guard vetted. */
+int hc_fast_access(Compiler *c, int recv, int idx, int write, char *ref, size_t cap) {
+  HcRegion *r = g_hc;
+  if (!r || !r->fast || recv < 0) return 0;
+  TyKind rt = comp_ntype(c, recv);
+  int b = -1, e = -1, k = -1;
+  /* a marked array's stores set no may_nil, so the guard could not vouch for it */
+  if ((rt == TY_INT_ARRAY || rt == TY_FLOAT_ARRAY) && !nullable_int_elem_array(c, recv) &&
+      hc_index_shape(c, idx, r, &b))
+    e = hc_entry_find(c, recv, rt == TY_FLOAT_ARRAY ? HC_FLOAT : HC_INT);
+  if (e >= 0 && b >= 0) {
+    char key[160];
+    if (hc_text(c, b, key, sizeof key)) {
+      for (int i = 0; i < r->no && k < 0; i++) if (sp_streq(r->ok[i], key)) k = i;
+      if (k < 0 && r->no < (int)(sizeof r->ok / sizeof r->ok[0])) {
+        snprintf(r->ok[r->no], sizeof r->ok[0], "%s", key);
+        r->onode[r->no] = b; k = r->no++;
+      }
+    }
+    if (k < 0) e = -1;
+  }
+  int u = -1;
+  if (e >= 0) {
+    for (int i = 0; i < r->nu && u < 0; i++) if (r->u[i].e == e && r->u[i].k == k) u = i;
+    if (u < 0 && r->nu < (int)(sizeof r->u / sizeof r->u[0])) {
+      r->u[r->nu].e = e; r->u[r->nu].k = k; r->u[r->nu].rd = r->u[r->nu].wr = 0; u = r->nu++;
+    }
+  }
+  if (u < 0) { if (write) r->fast_bad = 1; return 0; }
+  if (write) r->u[u].wr = 1; else r->u[u].rd = 1;
+  if (k >= 0) snprintf(ref, cap, "_hcd%d_%d[_lvo%d_%d + %s]", r->id, e, r->id, k, r->jt);
+  else snprintf(ref, cap, "_hcd%d_%d[%s]", r->id, e, r->jt);
+  return 1;
+}
+
+/* Is this Integer / Float operand no nil in the fast arm: an element read the
+   guard vetted, or a local the loop does not assign, which the guard then
+   tests? The one place the arm's nil checks are dropped from. */
+int hc_fast_nilfree(Compiler *c, int id) {
+  HcRegion *r = g_hc;
+  if (!r || !r->fast || id < 0) return 0;
+  const NodeTable *nt = c->nt;
+  switch (nt_kind(nt, id)) {
+    case NK_ParenthesesNode: return hc_fast_nilfree(c, hc_paren_inner(nt, id));
+    case NK_LocalVariableReadNode: {
+      const char *nm = nt_str(nt, id, "name");
+      TyKind t = comp_ntype(c, id);
+      char tx[64];
+      if (!nm || (t != TY_INT && t != TY_FLOAT) || nameset_has(&r->wl, nm) || !hc_text(c, id, tx, sizeof tx)) return 0;
+      for (int i = 0; i < r->nl; i++) if (sp_streq(r->lt[i], tx)) return 1;
+      if (r->nl >= (int)(sizeof r->lt / sizeof r->lt[0])) return 0;
+      snprintf(r->lt[r->nl], sizeof r->lt[0], "%s", tx);
+      r->lk[r->nl++] = t;
+      return 1;
+    }
+    case NK_CallNode: {
+      const char *nm = nt_str(nt, id, "name");
+      int a = nt_ref(nt, id, "arguments"), ac = 0;
+      const int *av = a >= 0 ? nt_arr(nt, a, "arguments", &ac) : NULL;
+      char ref[200];
+      return nm && is_element_at_alias(nm) && ac == 1 && nt_ref(nt, id, "block") < 0 &&
+             hc_fast_access(c, nt_ref(nt, id, "receiver"), av[0], 0, ref, sizeof ref);
+    }
+    default: return 0;
+  }
+}
+
+/* B into the guard, its overflow failing the guard rather than raising: the C
+   name or literal of its value into out. */
+static int hc_ofs_emit(Compiler *c, HcRegion *r, int id, Buf *g, char *out, size_t cap, int *tn) {
+  const NodeTable *nt = c->nt;
+  switch (nt_kind(nt, id)) {
+    case NK_IntegerNode:
+      snprintf(out, cap, "%lldLL", (long long)nt_int(nt, id, "value", 0));
+      return 1;
+    case NK_LocalVariableReadNode:
+      if (!hc_text(c, id, out, cap)) return 0;
+      buf_printf(g, " if (%s == SP_INT_NIL) _lvg%d = 0;", out, r->id);
+      return 1;
+    case NK_ParenthesesNode: return hc_ofs_emit(c, r, hc_paren_inner(nt, id), g, out, cap, tn);
+    case NK_CallNode: {
+      const char *op = nt_str(nt, id, "name");
+      int a = nt_ref(nt, id, "arguments"), ac = 0;
+      const int *av = nt_arr(nt, a, "arguments", &ac);
+      char x[160], y[160];
+      if (!hc_ofs_emit(c, r, nt_ref(nt, id, "receiver"), g, x, sizeof x, tn) ||
+          !hc_ofs_emit(c, r, av[0], g, y, sizeof y, tn)) return 0;
+      int t = (*tn)++;
+      buf_printf(g, " sp_int _lvt%d_%d; if (__builtin_%s_overflow(%s, %s, &_lvt%d_%d)) _lvg%d = 0;",
+                 r->id, t, sp_streq(op, "+") ? "add" : sp_streq(op, "-") ? "sub" : "mul", x, y, r->id, t, r->id);
+      snprintf(out, cap, "_lvt%d_%d", r->id, t);
+      return 1;
+    }
+    default: return 0;
+  }
+}
+
+/* The entry guard's statements: _lvgN ends 1 when the fast arm may run. With
+   decl 0 they assign the guard's locals rather than declare them: the re-test
+   after a chunk's polls. */
+static int hc_emit_guard(Compiler *c, HcRegion *r, int nv, Buf *g, int decl) {
+  const NodeTable *nt = c->nt;
+  char x[160];
+  int tn = 0, id = r->id;
+  const char *si = decl ? "sp_int " : "";
+  buf_printf(g, "%s_lvg%d = 1;", decl ? "int " : "", id);
+  if (nt_kind(nt, nv) == NK_IntegerNode) snprintf(x, sizeof x, "%lldLL", (long long)nt_int(nt, nv, "value", 0));
+  else if (!hc_text(c, nv, x, sizeof x)) return 0;
+  buf_printf(g, " %s_lvn%d = %s; if (_lvn%d < 0) _lvg%d = 0;", si, id, x, id, id);
+  for (int k = 0; k < r->no; k++) {
+    if (!hc_ofs_emit(c, r, r->onode[k], g, x, sizeof x, &tn)) return 0;
+    buf_printf(g, " %s_lvo%d_%d = %s; if (_lvo%d_%d < 0) _lvg%d = 0;", si, id, k, x, id, k, id);
+  }
+  for (int i = 0; i < r->nu; i++) {
+    int e = r->u[i].e, k = r->u[i].k;
+    buf_printf(g, " if (!_hcd%d_%d) _lvg%d = 0;", id, e, id);
+    if (r->u[i].wr) buf_printf(g, " if (!_hcw%d_%d) _lvg%d = 0;", id, e, id);
+    if (k >= 0)
+      buf_printf(g, " { sp_int _lve; if (__builtin_add_overflow(_lvo%d_%d, _lvn%d, &_lve) || _lve > _hcl%d_%d) _lvg%d = 0; }",
+                 id, k, id, id, e, id);
+    else buf_printf(g, " if (_lvn%d > _hcl%d_%d) _lvg%d = 0;", id, id, e, id);
+    if (r->u[i].rd) buf_printf(g, " if (_lvg%d && SP_MAY_NIL(%s)) _lvg%d = 0;", id, r->e[e].recv, id);
+  }
+  for (int i = 0; i < r->nl; i++)
+    buf_printf(g, r->lk[i] == TY_FLOAT ? " if (sp_float_is_nil(%s)) _lvg%d = 0;" : " if (%s == SP_INT_NIL) _lvg%d = 0;",
+               r->lt[i], id);
+  return 1;
+}
+
+/* passes of a polling build's fast arm between two polls */
+enum { HC_CHUNK = 4096 };
+
+/* The guard and the fast arm, into out, ending in the `else {` today's loop
+   follows, or in a chunked arm (r->chunk) that today's loop follows and goes
+   on from; out stays empty when the loop keeps today's form alone. */
+static void hc_version(Compiler *c, int id, int pred, int body, HcRegion *r, Buf *out, int indent) {
+  const NodeTable *nt = c->nt;
+  int sv_tmp = g_tmp;
+  if (!hc_text(c, nt_ref(nt, pred, "receiver"), r->jt, sizeof r->jt)) return;
+  int pa = nt_ref(nt, pred, "arguments"), pac = 0;
+  const int *pav = nt_arr(nt, pa, "arguments", &pac);
+  int bn = 0;
+  const int *bs = nt_arr(nt, body, "body", &bn);
+  r->nent0 = r->n; r->fast = 1;
+  Buf fb; memset(&fb, 0, sizeof fb);
+  int sv_cur = g_stmt_cur, sv_prev = g_stmt_prev;
+  for (int k = 0; k < bn - 1; k++) {
+    g_stmt_cur = bs[k]; g_stmt_prev = k ? bs[k - 1] : -1;
+    emit_stmt(c, bs[k], &fb, indent + 3);
+  }
+  g_stmt_cur = sv_cur; g_stmt_prev = sv_prev;
+  r->fast = 0;
+  const char *ft = fb.p ? fb.p : "";
+  Buf gb; memset(&gb, 0, sizeof gb);
+  Buf rb; memset(&rb, 0, sizeof rb);
+  r->chunk = g_uses_threads || g_uses_finalizers;
+  int ok = !r->fast_bad && r->nu > 0 && !strstr(ft, r->mark) && !strstr(ft, "Array_set") &&
+           hc_emit_guard(c, r, pav[0], &gb, 1) && (!r->chunk || hc_emit_guard(c, r, pav[0], &rb, 0)) &&
+           decide_node(nt, id, "loop-version", NULL);
+  const char *j = r->jt;
+  int n = r->id;
+  if (ok && !r->chunk) {
+    emit_indent(out, indent); buf_printf(out, "{ %s\n", gb.p);
+    emit_indent(out, indent + 1); buf_printf(out, "if (_lvg%d) {\n", n);
+    emit_indent(out, indent + 2); buf_printf(out, "for (; %s < _lvn%d; %s++) {\n", j, n, j);
+    buf_puts(out, ft);
+    emit_indent(out, indent + 2); buf_puts(out, "}\n");
+    emit_indent(out, indent + 1); buf_puts(out, "} else {\n");
+  }
+  else if (ok) {
+    emit_indent(out, indent); buf_printf(out, "{ %s\n", gb.p);
+    emit_indent(out, indent + 1); buf_printf(out, "if (_lvg%d) {\n", n);
+    emit_indent(out, indent + 2); buf_puts(out, "for (;;) {\n");
+    emit_indent(out, indent + 3);
+    buf_printf(out, "sp_int _lvc%d = _lvn%d - %s > %d ? %s + %d : _lvn%d;\n", n, n, j, HC_CHUNK, j, HC_CHUNK, n);
+    emit_indent(out, indent + 3); buf_printf(out, "for (; %s < _lvc%d; %s++) {\n", j, n, j);
+    buf_puts(out, ft);
+    emit_indent(out, indent + 3); buf_puts(out, "}\n");
+    emit_indent(out, indent + 3); buf_printf(out, "if (%s >= _lvn%d) break;\n", j, n);
+    if (g_uses_threads) {
+      emit_indent(out, indent + 3);
+      buf_printf(out, "if (SP_UNLIKELY(SP_SAFEPOINT_POLL())) sp_safepoint(), _SP_HCR%d();\n", n);
+    }
+    if (g_uses_finalizers) {
+      emit_indent(out, indent + 3);
+      buf_printf(out, "if (SP_UNLIKELY(SP_ATOMIC_LOAD(&sp_fin_pending_flag, __ATOMIC_RELAXED))) sp_fin_run_pending(), _SP_HCR%d();\n", n);
+    }
+    emit_indent(out, indent + 3); buf_printf(out, "{ %s }\n", rb.p);
+    emit_indent(out, indent + 3); buf_printf(out, "if (!_lvg%d) break;\n", n);
+    emit_indent(out, indent + 2); buf_puts(out, "}\n");
+    emit_indent(out, indent + 1); buf_puts(out, "}\n");
+  }
+  else g_tmp = sv_tmp;
+  free(fb.p); free(gb.p); free(rb.p);
+}
+
 /* The loop's text, with the declarations and the refresh ahead of it when
    anything was cached, and each slow path's mark turned into a refresh (or
-   dropped: a loop that cached nothing is emitted as it always was). */
-static void hc_close(HcRegion *r, const char *loop, Buf *b, int indent) {
+   dropped: a loop that cached nothing is emitted as it always was). `vers`
+   is hc_version's guard and fast arm, which today's loop then closes. */
+static void hc_close(HcRegion *r, const char *loop, const char *vers, Buf *b, int indent) {
   char call[32]; snprintf(call, sizeof call, ", _SP_HCR%d()", r->id);
   if (r->n > 0) {
     emit_indent(b, indent); buf_puts(b, "{\n");
@@ -6727,6 +7117,8 @@ static void hc_close(HcRegion *r, const char *loop, Buf *b, int indent) {
     buf_puts(b, "(void)0; })\n");
     emit_indent(b, indent + 1); buf_printf(b, "_SP_HCR%d();\n", r->id);
   }
+  int vs = r->n > 0 && vers && vers[0];
+  if (vs) buf_puts(b, vers);
   /* the marks, replaced */
   const char *p = loop;
   size_t ml = strlen(r->mark);
@@ -6735,6 +7127,10 @@ static void hc_close(HcRegion *r, const char *loop, Buf *b, int indent) {
     if (r->n > 0) buf_puts(b, call);
   }
   buf_puts(b, p);
+  if (vs) {
+    if (!r->chunk) { emit_indent(b, indent + 2); buf_puts(b, "}\n"); }
+    emit_indent(b, indent + 1); buf_puts(b, "}\n");
+  }
   if (r->n > 0) {
     buf_printf(b, "#undef _SP_HCR%d\n", r->id);
     emit_indent(b, indent); buf_puts(b, "}\n");
@@ -6801,8 +7197,10 @@ void emit_while(Compiler *c, int id, Buf *b, int indent, int is_until) {
   Buf hlb; memset(&hlb, 0, sizeof hlb);
   Buf *hob = b;
   int use_hc = !sv_hc && hc_node_ok(c, pred, 0, &hcr) && hc_node_ok(c, body, 1, &hcr);
+  int vshape = 0;
   if (use_hc) {
     if (!is_until) hc_bounded_index(c, prev_stmt, pred, body, &hcr);
+    vshape = !is_until && hc_versioned_shape(c, prev_stmt, pred, body, &hcr);
     hcr.id = ++g_hc_seq;
     snprintf(hcr.mark, sizeof hcr.mark, "/*@HCR%d@*/", hcr.id);
     g_hc = &hcr; b = &hlb;
@@ -6865,9 +7263,11 @@ void emit_while(Compiler *c, int id, Buf *b, int indent, int is_until) {
   }
   free(cpre.p); free(ccond.p);
   if (use_hc) {
+    Buf vb; memset(&vb, 0, sizeof vb);
+    if (vshape && hcr.n > 0) hc_version(c, id, pred, body, &hcr, &vb, indent + 1);
     g_hc = sv_hc; b = hob;
-    hc_close(&hcr, hlb.p ? hlb.p : "", b, indent);
-    free(hlb.p);
+    hc_close(&hcr, hlb.p ? hlb.p : "", vb.p, b, indent);
+    free(hlb.p); free(vb.p);
   }
   free(hcr.wl.v); free(hcr.wi.v);
   g_hoist_len_var = sv_hvar; g_hoist_len_recv = sv_hrecv;
@@ -14841,6 +15241,15 @@ static int emit_array_mutate_stmt_body(Compiler *c, int id, Buf *b, int indent) 
     /* a value that can be nil sets the array's may_nil on its way in: the
        in-range store below tests it, the rest take the _nilable set */
     const char *nsfx = nil_store_sfx(c, k, argv[1]);
+    char fr[200];
+    /* the versioned loop's fast arm: in range of a writable array by its guard */
+    if ((rt == TY_INT_ARRAY || rt == TY_FLOAT_ARRAY) && vt == et && !*nsfx &&
+        hc_fast_access(c, recv, argv[0], 1, fr, sizeof fr)) {
+      int tv = ++g_tmp;
+      buf_printf(b, "{ %s _t%d = ", c_type_name(et), tv); emit_expr(c, argv[1], b);
+      buf_printf(b, "; %s = _t%d; }\n", fr, tv);
+      return 1;
+    }
     if ((rt == TY_INT_ARRAY || rt == TY_FLOAT_ARRAY) && vt == et && comp_ntype(c, argv[0]) == TY_INT &&
         hc_array(c, recv, rt == TY_FLOAT_ARRAY, hd, hl, hw, sizeof hd)) {
       int tk = ++g_tmp, tv = ++g_tmp;

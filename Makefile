@@ -52,7 +52,7 @@ RBS_SRC      = $(wildcard $(RBS_DIR)/src/*.c) $(wildcard $(RBS_DIR)/src/util/*.c
 RBS_OBJ      = $(patsubst $(RBS_DIR)/src/%.c,build/rbs/%.o,$(RBS_SRC))
 RBS_LIB      = build/librbs.a
 
-.PHONY: all hooks gate-tool-test regexp wasm-rt wasm-test rbs_extract rbs-test rbs-seed-test rbs-seed-extractor cident plan-check-test repr-check-test nil-check-test traits-check-test bop-arity-check-test arity-spec-check re-lit-test reject-test cli-opts-test link-names-test defer-refusals-test check-stores-test backtrace-test gc-minor-test thread-puts-test ext-test ext-cruby-test alloc-report-test rubyspec rubyspec-gate spin-check \
+.PHONY: all hooks gate-tool-test regexp wasm-rt wasm-test rbs_extract rbs-test rbs-seed-test rbs-seed-extractor cident plan-check-test repr-check-test nil-check-test traits-check-test bop-arity-check-test arity-spec-check re-lit-test reject-test cli-opts-test link-names-test defer-refusals-test check-stores-test backtrace-test gc-minor-test thread-puts-test ext-test ext-cruby-test alloc-report-test loop-version-test rubyspec rubyspec-gate spin-check \
         test test-run clean-test-results regen-rbs-expected \
         regen-expected regen-expected-err bench optcarrot gate gate-full check gate-legs gate-test gate-bench gc-phases-test gc-stress-test gc-str-major-test threaded-render-test gc-locality-test test-corpus test-corpus-summary \
         gate-optcarrot scale-test clean install uninstall deps tools
@@ -764,8 +764,10 @@ endif
 # by promote_poly_slot_method_call instead. poly_method_return_kinds
 # additionally trips a typed `.to_proc`-with-defaults promote gap (an IntArray
 # default in a poly-widened callee), unrelated to the dispatch these pin.
+# loop_version_index_overflow pins the RangeError a cached loop's i*n index
+# raises in raise mode; promote reads a Bignum index there instead.
 ifeq ($(SPINEL_INT_OVERFLOW),promote)
-TESTS := $(filter-out test/int_overflow_raises.rb test/int_overflow_op_assign.rb test/poly_int_overflow_raises.rb test/str_to_i_overflow.rb test/string_to_i_overflow_raises.rb test/integer_argument_error.rb test/bounded_counter_unchecked_add.rb test/float_to_int_out_of_range.rb test/bigrational_to_i_out_of_range.rb test/float_to_int_boundary.rb test/poly_call_legacy_abi_gate.rb test/poly_call_fast_abi_gate.rb test/poly_method_return_kinds.rb,$(TESTS))
+TESTS := $(filter-out test/int_overflow_raises.rb test/loop_version_index_overflow.rb test/int_overflow_op_assign.rb test/poly_int_overflow_raises.rb test/str_to_i_overflow.rb test/string_to_i_overflow_raises.rb test/integer_argument_error.rb test/bounded_counter_unchecked_add.rb test/float_to_int_out_of_range.rb test/bigrational_to_i_out_of_range.rb test/float_to_int_boundary.rb test/poly_call_legacy_abi_gate.rb test/poly_call_fast_abi_gate.rb test/poly_method_return_kinds.rb,$(TESTS))
 # Drive the spinel front-end and the C compile in promote mode so the test
 # rule actually exercises the auto-promotion path end to end.
 SP_OV_FLAG := --int-overflow=promote
@@ -974,7 +976,7 @@ test: $(SPINEL_TIMEOUT)
 # The actual run. rbs-test golden-checks the RBS extractor (cheap, C-only).
 # rbs-seed-test checks the seeds actually reach the analyzer (incl. nested
 # classes, #1417).
-test-run: rbs-test rbs-seed-test re-lit-test reject-test cli-opts-test link-names-test defer-refusals-test check-stores-test backtrace-test gc-minor-test gc-phases-test gc-stress-test gc-threshold-test gc-obj-budget-test gc-str-major-test threaded-render-test gc-locality-test byref-capture-test thread-puts-test ext-test ext-cruby-test test-corpus-summary
+test-run: rbs-test rbs-seed-test re-lit-test reject-test cli-opts-test link-names-test defer-refusals-test check-stores-test backtrace-test gc-minor-test gc-phases-test gc-stress-test gc-threshold-test gc-obj-budget-test gc-str-major-test threaded-render-test gc-locality-test byref-capture-test loop-version-test thread-puts-test ext-test ext-cruby-test test-corpus-summary
 
 # The test/*.rb corpus (and the bundled packages') on its own, without the
 # C-side legs: what a 32-bit target runs (`make test-corpus CC='cc -m32'`),
@@ -1121,8 +1123,9 @@ test-run: decisions-test
 DECISION_TESTS = test/fixtures/decisions/sites.rb test/fixtures/decisions/nn_infer.rb \
                  test/gc_root_elided_array_slot.rb test/nil_narrowing.rb test/reader_read_only_no_copy.rb \
                  test/array_local_append_prepend_widen.rb test/poly_arm_kwrest_empty.rb \
-                 test/struct_class_aref_arity_guard_scope.rb test/object_reopen_private_explicit_receiver.rb
-DECISION_KINDS = aon-get case-root fetch-inert gc-save inline-force masgn-root nn-inb nn-read no-alloc \
+                 test/struct_class_aref_arity_guard_scope.rb test/object_reopen_private_explicit_receiver.rb \
+                 test/loop_version_alias.rb
+DECISION_KINDS = aon-get case-root fetch-inert gc-save inline-force loop-version masgn-root nn-inb nn-read no-alloc \
                  pd-hoist push-slot root-elide root-frame strbuf-raw
 decisions-test: $(SPINEL) $(SPINEL_TIMEOUT)
 	@ok=1; tmp=$$(mktemp -d /tmp/spinel-decisions.XXXXXX); : > "$$tmp/none"; \
@@ -1938,6 +1941,77 @@ byref-capture-test: $(SPINEL) $(RBS_EXTRACT_BIN) $(SP_RT_LIB) $(SPINEL_TIMEOUT)
 	  { echo "byref-capture-test: FAIL (output differs)"; diff -u test/rbs-seed/byref_capture_scan.expected "$$tmp/out" | head -5; ok=0; }; \
 	rm -rf "$$tmp"; \
 	if [ $$ok -eq 1 ]; then echo "byref-capture-test: pass"; else exit 1; fi
+
+# ---- Loop versioning: a header-cached loop's fast arm and its fallback ----
+# Each versioned loop's fast arm, the `if (_lvgN)` branch, reads and writes the
+# cached data raw: no element call, no nil check, no Integer helper in a
+# subscript, and `J++` for its step. Today's loop follows it, in the else. The
+# fixtures pin the arrays the entry guard turns away to the fallback. In a
+# threaded build the fast arm runs in chunks (LOOP_VERSION_CHUNKED): each
+# chunk's inner loop is as check-free, the poll between chunks refreshes the
+# cache, the guard is tested again, and today's loop follows to go on from
+# where the arm stopped. Those fixtures also run on one worker, where the other
+# thread gets in only at a poll. LOOP_VERSION_HANDOFF lands its change at the
+# poll between two chunks by construction (its header says how), so the
+# re-test fails and today's loop takes over mid-range on 1, 2 and 8 workers;
+# a fast arm that ran on prints `finished`. It is left out of the GC-stress
+# runs: there its finalizer's object outlives the collection the fixture sets
+# off, and is finalized only by the next pass's GC.start.
+LOOP_VERSION_HANDOFF = test/loop_version_chunk_handoff.rb
+LOOP_VERSION_TESTS = $(filter-out $(LOOP_VERSION_HANDOFF),$(wildcard test/loop_version_*.rb))
+LOOP_VERSION_CHUNKED = test/loop_version_thread_shrink.rb $(LOOP_VERSION_HANDOFF)
+loop-version-test: $(SPINEL) $(SP_RT_LIB) $(SPINEL_TIMEOUT)
+	@tmp=$$(mktemp -d /tmp/spinel-loopver.XXXXXX); ok=1; \
+	for f in test/loop_version_alias.rb test/loop_version_reduction.rb; do \
+	  $(SPINEL) $$f -S --no-line-map > "$$tmp/o.c" 2>/dev/null || { echo "loop-version-test: FAIL ($$f: compile)"; ok=0; continue; }; \
+	  r=$$(awk '/if \(_lvg[0-9]+\) \{/ { f = 1; n++; s = 0; next } \
+	    f && /\} else \{/ { f = 0; if (!s) bad++; getline; if ($$0 !~ /^ *while \(/) bad++; next } \
+	    f && /for \(; lv_[a-z0-9_]+ < _lvn[0-9]+; lv_[a-z0-9_]+\+\+\)/ { s = 1 } \
+	    f && /sp_(Int|Float)Array_(get|set)|SP_FLOAT_NIL_CK|\[[^]]*sp_int_/ { bad++ } \
+	    END { print n + 0, bad + 0 }' "$$tmp/o.c"); \
+	  set -- $$r; \
+	  [ "$$1" -gt 0 ] || { echo "loop-version-test: FAIL ($$f: no loop was versioned)"; ok=0; }; \
+	  [ "$$2" -eq 0 ] || { echo "loop-version-test: FAIL ($$f: $$2 fast-arm checks left, or a fast arm without today's loop after it)"; ok=0; }; \
+	done; \
+	for f in $(LOOP_VERSION_CHUNKED); do \
+	  $(SPINEL) $$f -S --no-line-map > "$$tmp/o.c" 2>/dev/null || { echo "loop-version-test: FAIL ($$f: compile)"; ok=0; continue; }; \
+	  r=$$(awk '/if \(_lvg[0-9]+\) \{/ { getline; if ($$0 !~ /for \(;;\) \{/) next; n++; f = 1; p = 0; t = 0; next } \
+	    f == 1 && /for \(; lv_[a-z0-9_]+ < _lvc[0-9]+; lv_[a-z0-9_]+\+\+\)/ { f = 2; next } \
+	    f == 2 && /sp_(Int|Float)Array_(get|set)|SP_FLOAT_NIL_CK|\[[^]]*sp_int_/ { bad++ } \
+	    f == 2 && /if \(lv_[a-z0-9_]+ >= _lvn[0-9]+\) break;/ { f = 3; next } \
+	    f == 3 && /SP_SAFEPOINT_POLL\(\)\)\) sp_safepoint\(\), _SP_HCR[0-9]+\(\);/ { p = 1 } \
+	    f == 3 && /\{ _lvg[0-9]+ = 1;/ { t = 1 } \
+	    f == 3 && /if \(!_lvg[0-9]+\) break;/ { if (!p || !t) bad++; f = 4; next } \
+	    f == 4 && /^ *while \(/ { f = 0; next } \
+	    f == 4 && !/^ *\}$$/ { bad++; f = 0 } \
+	    END { if (f) bad++; print n + 0, bad + 0 }' "$$tmp/o.c"); \
+	  set -- $$r; \
+	  [ "$$1" -gt 0 ] || { echo "loop-version-test: FAIL ($$f: no loop was versioned in chunks)"; ok=0; }; \
+	  [ "$$2" -eq 0 ] || { echo "loop-version-test: FAIL ($$f: $$2 chunked arms with a check left, no poll or re-test, or no today's loop after)"; ok=0; }; \
+	  $(SPINEL) $$f -o "$$tmp/b" >/dev/null 2>&1 || { echo "loop-version-test: FAIL ($$f: compile)"; ok=0; continue; }; \
+	  SPINEL_WORKERS=1 $(TIMEOUT60) "$$tmp/b" > "$$tmp/out" 2>&1; \
+	  cmp -s "$$tmp/out" $$f.expected || \
+	    { echo "loop-version-test: FAIL ($$f differs, SPINEL_WORKERS=1)"; diff -u $$f.expected "$$tmp/out" | head -5; ok=0; }; \
+	done; \
+	for f in $(LOOP_VERSION_HANDOFF); do \
+	  $(SPINEL) $$f -o "$$tmp/b" >/dev/null 2>&1 || { echo "loop-version-test: FAIL ($$f: compile)"; ok=0; continue; }; \
+	  for w in 2 8; do \
+	    SPINEL_WORKERS=$$w $(TIMEOUT60) "$$tmp/b" > "$$tmp/out" 2>&1; \
+	    cmp -s "$$tmp/out" $$f.expected || \
+	      { echo "loop-version-test: FAIL ($$f differs, SPINEL_WORKERS=$$w)"; diff -u $$f.expected "$$tmp/out" | head -5; ok=0; }; \
+	  done; \
+	done; \
+	for f in $(LOOP_VERSION_TESTS); do \
+	  $(SPINEL) $$f -o "$$tmp/b" >/dev/null 2>&1 || { echo "loop-version-test: FAIL ($$f: compile)"; ok=0; continue; }; \
+	  for stress in 0 1; do \
+	    if [ $$stress = 1 ]; then SPINEL_GC_STRESS=1 $(TIMEOUT60) "$$tmp/b" > "$$tmp/out" 2>&1; \
+	    else $(TIMEOUT60) "$$tmp/b" > "$$tmp/out" 2>&1; fi; \
+	    cmp -s "$$tmp/out" $$f.expected || \
+	      { echo "loop-version-test: FAIL ($$f differs, SPINEL_GC_STRESS=$$stress)"; diff -u $$f.expected "$$tmp/out" | head -5; ok=0; }; \
+	  done; \
+	done; \
+	rm -rf "$$tmp"; \
+	if [ $$ok -eq 1 ]; then echo "loop-version-test: pass"; else exit 1; fi
 
 # ---- Allocation locality: the same graph, laid down by 1 worker or by N ----
 # test/gc_locality_build.rb answers what the mark split in #4384 left open. The
